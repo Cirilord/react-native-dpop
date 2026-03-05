@@ -1,7 +1,7 @@
 {
   "name": "react-native-dpop",
   "version": "0.1.0",
-  "description": "Test",
+  "description": "React Native library for DPoP proof generation and key management.",
   "keywords": [
     "android",
     "ios",
