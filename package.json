@@ -2,6 +2,21 @@
   "name": "react-native-dpop",
   "version": "0.1.0",
   "description": "Test",
+  "keywords": [
+    "android",
+    "ios",
+    "react-native"
+  ],
+  "homepage": "https://github.com/Cirilord/react-native-dpop#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cirilord/react-native-dpop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Cirilord/react-native-dpop/issues"
+  },
+  "license": "MIT",
+  "author": "Pedro Cirilo <phscirilo123@gmail.com> (https://github.com/Cirilord)",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -32,31 +47,20 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace react-native-dpop-example",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "prepare": "bob build",
-    "typecheck": "tsc",
+    "example": "yarn workspace react-native-dpop-example",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "prepare": "bob build",
+    "release": "release-it --only-version",
     "test": "jest",
-    "release": "release-it --only-version"
+    "typecheck": "tsc"
   },
-  "keywords": [
-    "react-native",
-    "ios",
-    "android"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Cirilord/react-native-dpop.git"
-  },
-  "author": "Pedro Cirilo <phscirilo123@gmail.com> (https://github.com/Cirilord)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Cirilord/react-native-dpop/issues"
-  },
-  "homepage": "https://github.com/Cirilord/react-native-dpop#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^19.8.1",
@@ -82,10 +86,6 @@
     "release-it": "^19.0.4",
     "turbo": "^2.5.6",
     "typescript": "^5.9.2"
-  },
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
   },
   "workspaces": [
     "example"
@@ -116,54 +116,5 @@
     "android": {
       "javaPackageName": "com.dpop"
     }
-  },
-  "prettier": {
-    "quoteProps": "consistent",
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false
-  },
-  "jest": {
-    "preset": "react-native",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
-    ]
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore: release ${version}",
-      "tagName": "v${version}"
-    },
-    "npm": {
-      "publish": true
-    },
-    "github": {
-      "release": true
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": {
-          "name": "angular"
-        }
-      }
-    }
-  },
-  "create-react-native-library": {
-    "type": "turbo-module",
-    "languages": "kotlin-objc",
-    "tools": [
-      "eslint",
-      "jest",
-      "lefthook",
-      "release-it"
-    ],
-    "version": "0.57.2"
   }
 }
