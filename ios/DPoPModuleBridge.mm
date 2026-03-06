@@ -1,11 +1,15 @@
-#import "Dpop.h"
+#import "DPoPModule.h"
 
 @implementation Dpop
-- (NSNumber *)multiply:(double)a b:(double)b {
-    NSNumber *result = @(a * b);
 
-    return result;
-}
+RCT_EXPORT_MODULE(Dpop)
+
+@end
+
+#if RCT_NEW_ARCH_ENABLED
+#import <DpopSpec/DpopSpec.h>
+
+@implementation Dpop (TurboModule)
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params
@@ -13,9 +17,5 @@
     return std::make_shared<facebook::react::NativeDpopSpecJSI>(params);
 }
 
-+ (NSString *)moduleName
-{
-  return @"Dpop";
-}
-
 @end
+#endif

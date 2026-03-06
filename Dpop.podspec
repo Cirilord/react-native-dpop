@@ -14,7 +14,10 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/Cirilord/react-native-dpop.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift,cpp}"
-  s.private_header_files = "ios/**/*.h"
 
-  install_modules_dependencies(s)
+  if respond_to?(:install_modules_dependencies, true)
+    install_modules_dependencies(s)
+  else
+    s.dependency "React-Core"
+  end
 end

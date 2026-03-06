@@ -1,5 +1,5 @@
 import type { TurboModule } from 'react-native';
-import { TurboModuleRegistry } from 'react-native';
+import { NativeModules, TurboModuleRegistry } from 'react-native';
 import type { UnsafeObject } from 'react-native/Libraries/Types/CodegenTypes';
 
 export interface Spec extends TurboModule {
@@ -27,4 +27,6 @@ export interface Spec extends TurboModule {
   ): Promise<UnsafeObject>;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('Dpop');
+const nativeDpopModule = TurboModuleRegistry.get<Spec>('Dpop') ?? (NativeModules.Dpop as Spec | undefined);
+
+export default nativeDpopModule as Spec;

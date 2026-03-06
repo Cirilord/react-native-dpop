@@ -51,12 +51,11 @@ type GenerateProofResult = {
   proofContext: DPoPProofContext;
 };
 
-const LINKING_ERROR =
-  'Dpop module nao encontrado. Verifique se o app Android foi recompilado apos adicionar o modulo nativo.';
+const LINKING_ERROR = 'Dpop module nao encontrado. Verifique se o app foi recompilado apos adicionar o modulo nativo.';
 
-function requireAndroid() {
-  if (Platform.OS !== 'android') {
-    throw new Error('react-native-dpop (MVP atual) suporta somente Android.');
+function requireNativeModule() {
+  if (Platform.OS !== 'android' && Platform.OS !== 'ios') {
+    throw new Error(`react-native-dpop nao suporta ${Platform.OS}.`);
   }
   if (!Dpop) {
     throw new Error(LINKING_ERROR);
@@ -75,12 +74,12 @@ export class DPoP {
   }
 
   public async calculateThumbprint(): Promise<string> {
-    requireAndroid();
+    requireNativeModule();
     return Dpop.calculateThumbprint(this.alias ?? null);
   }
 
   public async getPublicKey(format: PublicKeyFormat): Promise<PublicJwk | string> {
-    requireAndroid();
+    requireNativeModule();
     if (format === 'DER') {
       return Dpop.getPublicKeyDer(this.alias ?? null);
     }
@@ -92,17 +91,17 @@ export class DPoP {
   }
 
   public async signWithDpopPrivateKey(payload: string): Promise<string> {
-    requireAndroid();
+    requireNativeModule();
     return Dpop.signWithDpopPrivateKey(payload, this.alias ?? null);
   }
 
   public async isBoundToAlias(alias?: string): Promise<boolean> {
-    requireAndroid();
+    requireNativeModule();
     return Dpop.isBoundToAlias(this.proof, alias ?? this.alias ?? null);
   }
 
   public static async generateProof(input: GenerateProofInput): Promise<DPoP> {
-    requireAndroid();
+    requireNativeModule();
     const result = (await Dpop.generateProof(
       input.htu,
       input.htm,
@@ -119,27 +118,27 @@ export class DPoP {
   }
 
   public static async assertHardwareBacked(alias?: string): Promise<void> {
-    requireAndroid();
+    requireNativeModule();
     await Dpop.assertHardwareBacked(alias ?? null);
   }
 
   public static async deleteKeyPair(alias?: string): Promise<void> {
-    requireAndroid();
+    requireNativeModule();
     await Dpop.deleteKeyPair(alias ?? null);
   }
 
   public static async getKeyInfo(alias?: string): Promise<DPoPKeyInfo> {
-    requireAndroid();
+    requireNativeModule();
     return Dpop.getKeyInfo(alias ?? null) as Promise<DPoPKeyInfo>;
   }
 
   public static async hasKeyPair(alias?: string): Promise<boolean> {
-    requireAndroid();
+    requireNativeModule();
     return Dpop.hasKeyPair(alias ?? null);
   }
 
   public static async rotateKeyPair(alias?: string): Promise<void> {
-    requireAndroid();
+    requireNativeModule();
     await Dpop.rotateKeyPair(alias ?? null);
   }
 }
