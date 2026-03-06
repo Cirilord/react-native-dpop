@@ -14,9 +14,7 @@ React Native library for DPoP proof generation and key management.
 ## Platform Support
 
 - Android: supported.
-- iOS: planned.
-
-Current implementation throws on non-Android platforms.
+- iOS: supported.
 
 ## Installation
 

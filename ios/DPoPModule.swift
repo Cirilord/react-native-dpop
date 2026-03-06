@@ -1,0 +1,353 @@
+import Foundation
+import Security
+import React
+
+final class DPoPModule {
+  static let shared = DPoPModule()
+
+  private let keyStore = DPoPKeyStore()
+  private let defaultAlias = "react-native-dpop"
+
+  private init() {}
+
+  func resolveAlias(_ alias: String?) -> String {
+    guard let alias, !alias.isEmpty else {
+      return defaultAlias
+    }
+    return alias
+  }
+
+  func assertHardwareBacked(alias: String?) throws {
+    let effectiveAlias = resolveAlias(alias)
+    guard keyStore.hasKeyPair(alias: effectiveAlias) else {
+      throw DPoPError.keyNotFound(alias: effectiveAlias)
+    }
+
+    guard keyStore.isHardwareBacked(alias: effectiveAlias) else {
+      throw DPoPError.notHardwareBacked(alias: effectiveAlias)
+    }
+  }
+
+  func calculateThumbprint(alias: String?) throws -> String {
+    let effectiveAlias = resolveAlias(alias)
+    if !keyStore.hasKeyPair(alias: effectiveAlias) {
+      try keyStore.generateKeyPair(alias: effectiveAlias)
+    }
+    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
+    let coordinates = try DPoPUtils.getPublicCoordinates(fromRawPublicKey: try DPoPUtils.toRawPublicKey(keyPair.publicKey))
+    return DPoPUtils.calculateThumbprint(kty: "EC", crv: "P-256", x: coordinates.x, y: coordinates.y)
+  }
+
+  func deleteKeyPair(alias: String?) throws {
+    try keyStore.deleteKeyPair(alias: resolveAlias(alias))
+  }
+
+  func getKeyInfo(alias: String?) -> [String: Any] {
+    let effectiveAlias = resolveAlias(alias)
+    let keyInfo = keyStore.getKeyInfo(alias: effectiveAlias)
+
+    if !keyInfo.hasKeyPair {
+      return [
+        "alias": effectiveAlias,
+        "hasKeyPair": false
+      ]
+    }
+
+    return [
+      "alias": keyInfo.alias,
+      "algorithm": keyInfo.algorithm,
+      "curve": keyInfo.curve,
+      "hasKeyPair": true,
+      "insideSecureHardware": keyInfo.insideSecureHardware,
+      "strongBoxAvailable": keyInfo.strongBoxAvailable,
+      "strongBoxBacked": keyInfo.strongBoxBacked
+    ]
+  }
+
+  func getPublicKeyDer(alias: String?) throws -> String {
+    let effectiveAlias = resolveAlias(alias)
+    if !keyStore.hasKeyPair(alias: effectiveAlias) {
+      try keyStore.generateKeyPair(alias: effectiveAlias)
+    }
+    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
+    return DPoPUtils.base64UrlEncode(try DPoPUtils.toDerPublicKey(keyPair.publicKey))
+  }
+
+  func getPublicKeyJwk(alias: String?) throws -> [String: Any] {
+    let effectiveAlias = resolveAlias(alias)
+    if !keyStore.hasKeyPair(alias: effectiveAlias) {
+      try keyStore.generateKeyPair(alias: effectiveAlias)
+    }
+    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
+    let coordinates = try DPoPUtils.getPublicCoordinates(fromRawPublicKey: try DPoPUtils.toRawPublicKey(keyPair.publicKey))
+    return [
+      "kty": "EC",
+      "crv": "P-256",
+      "x": coordinates.x,
+      "y": coordinates.y
+    ]
+  }
+
+  func getPublicKeyRaw(alias: String?) throws -> String {
+    let effectiveAlias = resolveAlias(alias)
+    if !keyStore.hasKeyPair(alias: effectiveAlias) {
+      try keyStore.generateKeyPair(alias: effectiveAlias)
+    }
+    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
+    return DPoPUtils.base64UrlEncode(try DPoPUtils.toRawPublicKey(keyPair.publicKey))
+  }
+
+  func hasKeyPair(alias: String?) -> Bool {
+    keyStore.hasKeyPair(alias: resolveAlias(alias))
+  }
+
+  func isBoundToAlias(proof: String, alias: String?) throws -> Bool {
+    let effectiveAlias = resolveAlias(alias)
+    if !keyStore.hasKeyPair(alias: effectiveAlias) {
+      try keyStore.generateKeyPair(alias: effectiveAlias)
+    }
+    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
+    return try DPoPUtils.isProofBoundToPublicKey(proof, publicKey: keyPair.publicKey)
+  }
+
+  func rotateKeyPair(alias: String?) throws {
+    try keyStore.generateKeyPair(alias: resolveAlias(alias))
+  }
+
+  func signWithDpopPrivateKey(payload: String, alias: String?) throws -> String {
+    let effectiveAlias = resolveAlias(alias)
+    if !keyStore.hasKeyPair(alias: effectiveAlias) {
+      try keyStore.generateKeyPair(alias: effectiveAlias)
+    }
+    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
+    var error: Unmanaged<CFError>?
+    guard let derSignature = SecKeyCreateSignature(
+      keyPair.privateKey,
+      .ecdsaSignatureMessageX962SHA256,
+      Data(payload.utf8) as CFData,
+      &error
+    ) as Data? else {
+      throw DPoPError.securityError(error?.takeRetainedValue())
+    }
+    let joseSignature = try DPoPUtils.derToJose(derSignature, partLength: 32)
+    return DPoPUtils.base64UrlEncode(joseSignature)
+  }
+
+  func generateProof(
+    htu: String,
+    htm: String,
+    nonce: String?,
+    accessToken: String?,
+    additional: [String: Any]?,
+    kid: String?,
+    jti: String?,
+    iat: NSNumber?,
+    alias: String?
+  ) throws -> [String: Any] {
+    let effectiveAlias = resolveAlias(alias)
+    if !keyStore.hasKeyPair(alias: effectiveAlias) {
+      try keyStore.generateKeyPair(alias: effectiveAlias)
+    }
+    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
+    let coordinates = try DPoPUtils.getPublicCoordinates(fromRawPublicKey: try DPoPUtils.toRawPublicKey(keyPair.publicKey))
+
+    var jwk: [String: Any] = [
+      "kty": "EC",
+      "crv": "P-256",
+      "x": coordinates.x,
+      "y": coordinates.y
+    ]
+
+    var header: [String: Any] = [
+      "typ": "dpop+jwt",
+      "alg": "ES256",
+      "jwk": jwk
+    ]
+
+    if let kid, !kid.isEmpty {
+      header["kid"] = kid
+    }
+
+    let issuedAt = iat?.int64Value ?? Int64(Date().timeIntervalSince1970)
+    let finalJti = (jti?.isEmpty == false) ? jti! : UUID().uuidString
+
+    var payload: [String: Any] = [
+      "jti": finalJti,
+      "htm": htm.uppercased(),
+      "htu": htu,
+      "iat": issuedAt
+    ]
+
+    if let nonce, !nonce.isEmpty {
+      payload["nonce"] = nonce
+    }
+
+    if let accessToken, !accessToken.isEmpty {
+      payload["ath"] = DPoPUtils.hashAccessToken(accessToken)
+    }
+
+    if let additional {
+      for (key, value) in additional {
+        payload[key] = value
+      }
+    }
+
+    let headerSegment = DPoPUtils.base64UrlEncode(try DPoPUtils.jsonData(header))
+    let payloadSegment = DPoPUtils.base64UrlEncode(try DPoPUtils.jsonData(payload))
+    let signingInput = "\(headerSegment).\(payloadSegment)"
+
+    var error: Unmanaged<CFError>?
+    guard let derSignature = SecKeyCreateSignature(
+      keyPair.privateKey,
+      .ecdsaSignatureMessageX962SHA256,
+      Data(signingInput.utf8) as CFData,
+      &error
+    ) as Data? else {
+      throw DPoPError.securityError(error?.takeRetainedValue())
+    }
+    let joseSignature = try DPoPUtils.derToJose(derSignature, partLength: 32)
+    let jwt = "\(signingInput).\(DPoPUtils.base64UrlEncode(joseSignature))"
+
+    let proofContext: [String: Any] = [
+      "htu": payload["htu"] as? String ?? htu,
+      "htm": payload["htm"] as? String ?? htm.uppercased(),
+      "nonce": payload["nonce"] ?? NSNull(),
+      "ath": payload["ath"] ?? NSNull(),
+      "kid": header["kid"] ?? NSNull(),
+      "jti": payload["jti"] as? String ?? finalJti,
+      "iat": Double(issuedAt),
+      "additional": additional ?? NSNull()
+    ]
+
+    return [
+      "proof": jwt,
+      "proofContext": proofContext
+    ]
+  }
+
+}
+
+@objc extension Dpop {
+  static func moduleName() -> String! {
+    "Dpop"
+  }
+
+  static func requiresMainQueueSetup() -> Bool {
+    false
+  }
+
+  func assertHardwareBacked(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      try DPoPModule.shared.assertHardwareBacked(alias: alias)
+      resolve(nil)
+    } catch {
+      reject("ERR_DPOP_ASSERT_HARDWARE_BACKED", error.localizedDescription, error)
+    }
+  }
+
+  func calculateThumbprint(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      resolve(try DPoPModule.shared.calculateThumbprint(alias: alias))
+    } catch {
+      reject("ERR_DPOP_CALCULATE_THUMBPRINT", error.localizedDescription, error)
+    }
+  }
+
+  func deleteKeyPair(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      try DPoPModule.shared.deleteKeyPair(alias: alias)
+      resolve(nil)
+    } catch {
+      reject("ERR_DPOP_DELETE_KEY_PAIR", error.localizedDescription, error)
+    }
+  }
+
+  func getKeyInfo(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    resolve(DPoPModule.shared.getKeyInfo(alias: alias))
+  }
+
+  func getPublicKeyDer(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      resolve(try DPoPModule.shared.getPublicKeyDer(alias: alias))
+    } catch {
+      reject("ERR_DPOP_PUBLIC_KEY", error.localizedDescription, error)
+    }
+  }
+
+  func getPublicKeyJwk(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      resolve(try DPoPModule.shared.getPublicKeyJwk(alias: alias))
+    } catch {
+      reject("ERR_DPOP_PUBLIC_KEY", error.localizedDescription, error)
+    }
+  }
+
+  func getPublicKeyRaw(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      resolve(try DPoPModule.shared.getPublicKeyRaw(alias: alias))
+    } catch {
+      reject("ERR_DPOP_PUBLIC_KEY", error.localizedDescription, error)
+    }
+  }
+
+  func hasKeyPair(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    resolve(DPoPModule.shared.hasKeyPair(alias: alias))
+  }
+
+  func isBoundToAlias(_ proof: String, alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      resolve(try DPoPModule.shared.isBoundToAlias(proof: proof, alias: alias))
+    } catch {
+      reject("ERR_DPOP_IS_BOUND_TO_ALIAS", error.localizedDescription, error)
+    }
+  }
+
+  func rotateKeyPair(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      try DPoPModule.shared.rotateKeyPair(alias: alias)
+      resolve(nil)
+    } catch {
+      reject("ERR_DPOP_ROTATE_KEY_PAIR", error.localizedDescription, error)
+    }
+  }
+
+  func signWithDpopPrivateKey(_ payload: String, alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      resolve(try DPoPModule.shared.signWithDpopPrivateKey(payload: payload, alias: alias))
+    } catch {
+      reject("ERR_DPOP_SIGN_WITH_PRIVATE_KEY", error.localizedDescription, error)
+    }
+  }
+
+  func generateProof(
+    _ htu: String,
+    htm: String,
+    nonce: String?,
+    accessToken: String?,
+    additional: [String: Any]?,
+    kid: String?,
+    jti: String?,
+    iat: NSNumber?,
+    alias: String?,
+    resolve: @escaping RCTPromiseResolveBlock,
+    reject: @escaping RCTPromiseRejectBlock
+  ) {
+    do {
+      resolve(
+        try DPoPModule.shared.generateProof(
+          htu: htu,
+          htm: htm,
+          nonce: nonce,
+          accessToken: accessToken,
+          additional: additional,
+          kid: kid,
+          jti: jti,
+          iat: iat,
+          alias: alias
+        )
+      )
+    } catch {
+      reject("ERR_DPOP_GENERATE_PROOF", error.localizedDescription, error)
+    }
+  }
+}
