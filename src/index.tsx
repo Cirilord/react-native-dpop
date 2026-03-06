@@ -1,5 +1,4 @@
-import { Platform } from 'react-native';
-import Dpop from './NativeDpop';
+import NativeReactNativeDPoP from './NativeReactNativeDPoP';
 
 type AdditionalClaims = Record<string, unknown>;
 
@@ -51,17 +50,6 @@ type GenerateProofResult = {
   proofContext: DPoPProofContext;
 };
 
-const LINKING_ERROR = 'Dpop module nao encontrado. Verifique se o app foi recompilado apos adicionar o modulo nativo.';
-
-function requireNativeModule() {
-  if (Platform.OS !== 'android' && Platform.OS !== 'ios') {
-    throw new Error(`react-native-dpop nao suporta ${Platform.OS}.`);
-  }
-  if (!Dpop) {
-    throw new Error(LINKING_ERROR);
-  }
-}
-
 export class DPoP {
   public readonly proof: string;
   public readonly alias?: string;
@@ -74,35 +62,30 @@ export class DPoP {
   }
 
   public async calculateThumbprint(): Promise<string> {
-    requireNativeModule();
-    return Dpop.calculateThumbprint(this.alias ?? null);
+    return NativeReactNativeDPoP.calculateThumbprint(this.alias ?? null);
   }
 
   public async getPublicKey(format: PublicKeyFormat): Promise<PublicJwk | string> {
-    requireNativeModule();
     if (format === 'DER') {
-      return Dpop.getPublicKeyDer(this.alias ?? null);
+      return NativeReactNativeDPoP.getPublicKeyDer(this.alias ?? null);
     }
     if (format === 'RAW') {
-      return Dpop.getPublicKeyRaw(this.alias ?? null);
+      return NativeReactNativeDPoP.getPublicKeyRaw(this.alias ?? null);
     }
 
-    return Dpop.getPublicKeyJwk(this.alias ?? null) as Promise<PublicJwk>;
+    return NativeReactNativeDPoP.getPublicKeyJwk(this.alias ?? null) as Promise<PublicJwk>;
   }
 
   public async signWithDpopPrivateKey(payload: string): Promise<string> {
-    requireNativeModule();
-    return Dpop.signWithDpopPrivateKey(payload, this.alias ?? null);
+    return NativeReactNativeDPoP.signWithDpopPrivateKey(payload, this.alias ?? null);
   }
 
   public async isBoundToAlias(alias?: string): Promise<boolean> {
-    requireNativeModule();
-    return Dpop.isBoundToAlias(this.proof, alias ?? this.alias ?? null);
+    return NativeReactNativeDPoP.isBoundToAlias(this.proof, alias ?? this.alias ?? null);
   }
 
   public static async generateProof(input: GenerateProofInput): Promise<DPoP> {
-    requireNativeModule();
-    const result = (await Dpop.generateProof(
+    const result = (await NativeReactNativeDPoP.generateProof(
       input.htu,
       input.htm,
       input.nonce ?? null,
@@ -118,27 +101,22 @@ export class DPoP {
   }
 
   public static async assertHardwareBacked(alias?: string): Promise<void> {
-    requireNativeModule();
-    await Dpop.assertHardwareBacked(alias ?? null);
+    await NativeReactNativeDPoP.assertHardwareBacked(alias ?? null);
   }
 
   public static async deleteKeyPair(alias?: string): Promise<void> {
-    requireNativeModule();
-    await Dpop.deleteKeyPair(alias ?? null);
+    await NativeReactNativeDPoP.deleteKeyPair(alias ?? null);
   }
 
   public static async getKeyInfo(alias?: string): Promise<DPoPKeyInfo> {
-    requireNativeModule();
-    return Dpop.getKeyInfo(alias ?? null) as Promise<DPoPKeyInfo>;
+    return NativeReactNativeDPoP.getKeyInfo(alias ?? null) as Promise<DPoPKeyInfo>;
   }
 
   public static async hasKeyPair(alias?: string): Promise<boolean> {
-    requireNativeModule();
-    return Dpop.hasKeyPair(alias ?? null);
+    return NativeReactNativeDPoP.hasKeyPair(alias ?? null);
   }
 
   public static async rotateKeyPair(alias?: string): Promise<void> {
-    requireNativeModule();
-    await Dpop.rotateKeyPair(alias ?? null);
+    await NativeReactNativeDPoP.rotateKeyPair(alias ?? null);
   }
 }

@@ -1,5 +1,5 @@
 #import <React/RCTBridgeModule.h>
 
-@interface Dpop : NSObject <RCTBridgeModule>
+@interface ReactNativeDPoP : NSObject <RCTBridgeModule>
 
 @end

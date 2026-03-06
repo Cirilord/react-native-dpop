@@ -10,6 +10,7 @@ React Native library for DPoP proof generation and key management.
 - Calculate JWK thumbprint (`SHA-256`, base64url).
 - Verify if a proof is bound to a given key alias.
 - Retrieve non-sensitive key metadata (hardware-backed, StrongBox info, etc.).
+- iOS key storage uses Secure Enclave when available, with Keychain fallback.
 
 ## Platform Support
 
@@ -20,6 +21,12 @@ React Native library for DPoP proof generation and key management.
 
 ```sh
 npm install react-native-dpop
+```
+
+For iOS, install pods in your app project:
+
+```sh
+cd ios && pod install
 ```
 
 ## Quick Start
@@ -37,6 +44,7 @@ const dpop = await DPoP.generateProof({
 const proof = dpop.proof;
 const thumbprint = await dpop.calculateThumbprint();
 const publicJwk = await dpop.getPublicKey('JWK');
+const isBound = await dpop.isBoundToAlias();
 ```
 
 ## API
@@ -76,6 +84,7 @@ const publicJwk = await dpop.getPublicKey('JWK');
 Native errors are rejected with codes such as:
 
 - `ERR_DPOP_GENERATE_PROOF`
+- `ERR_DPOP_CALCULATE_THUMBPRINT`
 - `ERR_DPOP_PUBLIC_KEY`
 - `ERR_DPOP_SIGN_WITH_PRIVATE_KEY`
 - `ERR_DPOP_HAS_KEY_PAIR`

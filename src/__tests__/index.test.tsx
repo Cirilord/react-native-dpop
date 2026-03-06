@@ -1,4 +1,4 @@
-jest.mock('../NativeDpop', () => ({
+jest.mock('../NativeReactNativeDPoP', () => ({
   __esModule: true,
   default: {
     assertHardwareBacked: jest.fn(),
@@ -16,16 +16,11 @@ jest.mock('../NativeDpop', () => ({
   },
 }));
 
-jest.mock('react-native', () => ({
-  Platform: { OS: 'android' },
-}));
-
-import { Platform } from 'react-native';
-import NativeDpop from '../NativeDpop';
+import NativeReactNativeDPoP from '../NativeReactNativeDPoP';
 import { DPoP } from '../index';
 
 describe('DPoP', () => {
-  const mockNativeDpop = NativeDpop as jest.Mocked<typeof NativeDpop>;
+  const mockNativeReactNativeDPoP = NativeReactNativeDPoP as jest.Mocked<typeof NativeReactNativeDPoP>;
   const proofContext = {
     htu: 'https://api.example.com/token',
     htm: 'POST',
@@ -39,11 +34,10 @@ describe('DPoP', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    Platform.OS = 'android';
   });
 
   it('generates proof and exposes proof data', async () => {
-    mockNativeDpop.generateProof.mockResolvedValue({
+    mockNativeReactNativeDPoP.generateProof.mockResolvedValue({
       proof: 'proof.jwt',
       proofContext,
     });
@@ -54,7 +48,7 @@ describe('DPoP', () => {
       alias: 'alias-1',
     });
 
-    expect(mockNativeDpop.generateProof).toHaveBeenCalledWith(
+    expect(mockNativeReactNativeDPoP.generateProof).toHaveBeenCalledWith(
       proofContext.htu,
       'post',
       null,
@@ -71,13 +65,13 @@ describe('DPoP', () => {
   });
 
   it('routes getPublicKey by format', async () => {
-    mockNativeDpop.generateProof.mockResolvedValue({
+    mockNativeReactNativeDPoP.generateProof.mockResolvedValue({
       proof: 'proof.jwt',
       proofContext,
     });
-    mockNativeDpop.getPublicKeyJwk.mockResolvedValue({ kty: 'EC', crv: 'P-256', x: 'x', y: 'y' });
-    mockNativeDpop.getPublicKeyDer.mockResolvedValue('der');
-    mockNativeDpop.getPublicKeyRaw.mockResolvedValue('raw');
+    mockNativeReactNativeDPoP.getPublicKeyJwk.mockResolvedValue({ kty: 'EC', crv: 'P-256', x: 'x', y: 'y' });
+    mockNativeReactNativeDPoP.getPublicKeyDer.mockResolvedValue('der');
+    mockNativeReactNativeDPoP.getPublicKeyRaw.mockResolvedValue('raw');
 
     const dpop = await DPoP.generateProof({ htu: proofContext.htu, htm: 'POST', alias: 'a1' });
 
@@ -85,19 +79,19 @@ describe('DPoP', () => {
     expect(await dpop.getPublicKey('DER')).toBe('der');
     expect(await dpop.getPublicKey('RAW')).toBe('raw');
 
-    expect(mockNativeDpop.getPublicKeyJwk).toHaveBeenCalledWith('a1');
-    expect(mockNativeDpop.getPublicKeyDer).toHaveBeenCalledWith('a1');
-    expect(mockNativeDpop.getPublicKeyRaw).toHaveBeenCalledWith('a1');
+    expect(mockNativeReactNativeDPoP.getPublicKeyJwk).toHaveBeenCalledWith('a1');
+    expect(mockNativeReactNativeDPoP.getPublicKeyDer).toHaveBeenCalledWith('a1');
+    expect(mockNativeReactNativeDPoP.getPublicKeyRaw).toHaveBeenCalledWith('a1');
   });
 
   it('calls instance methods with alias fallback', async () => {
-    mockNativeDpop.generateProof.mockResolvedValue({
+    mockNativeReactNativeDPoP.generateProof.mockResolvedValue({
       proof: 'proof.jwt',
       proofContext,
     });
-    mockNativeDpop.calculateThumbprint.mockResolvedValue('thumb');
-    mockNativeDpop.signWithDpopPrivateKey.mockResolvedValue('sig');
-    mockNativeDpop.isBoundToAlias.mockResolvedValue(true);
+    mockNativeReactNativeDPoP.calculateThumbprint.mockResolvedValue('thumb');
+    mockNativeReactNativeDPoP.signWithDpopPrivateKey.mockResolvedValue('sig');
+    mockNativeReactNativeDPoP.isBoundToAlias.mockResolvedValue(true);
 
     const dpop = await DPoP.generateProof({ htu: proofContext.htu, htm: 'POST' });
 
@@ -105,14 +99,14 @@ describe('DPoP', () => {
     expect(await dpop.signWithDpopPrivateKey('payload')).toBe('sig');
     expect(await dpop.isBoundToAlias()).toBe(true);
 
-    expect(mockNativeDpop.calculateThumbprint).toHaveBeenCalledWith(null);
-    expect(mockNativeDpop.signWithDpopPrivateKey).toHaveBeenCalledWith('payload', null);
-    expect(mockNativeDpop.isBoundToAlias).toHaveBeenCalledWith('proof.jwt', null);
+    expect(mockNativeReactNativeDPoP.calculateThumbprint).toHaveBeenCalledWith(null);
+    expect(mockNativeReactNativeDPoP.signWithDpopPrivateKey).toHaveBeenCalledWith('payload', null);
+    expect(mockNativeReactNativeDPoP.isBoundToAlias).toHaveBeenCalledWith('proof.jwt', null);
   });
 
   it('calls static key management methods', async () => {
-    mockNativeDpop.getKeyInfo.mockResolvedValue({ alias: 'a1', hasKeyPair: true });
-    mockNativeDpop.hasKeyPair.mockResolvedValue(true);
+    mockNativeReactNativeDPoP.getKeyInfo.mockResolvedValue({ alias: 'a1', hasKeyPair: true });
+    mockNativeReactNativeDPoP.hasKeyPair.mockResolvedValue(true);
 
     await DPoP.assertHardwareBacked('a1');
     await DPoP.deleteKeyPair('a1');
@@ -121,21 +115,10 @@ describe('DPoP', () => {
     expect(await DPoP.getKeyInfo('a1')).toEqual({ alias: 'a1', hasKeyPair: true });
     expect(await DPoP.hasKeyPair('a1')).toBe(true);
 
-    expect(mockNativeDpop.assertHardwareBacked).toHaveBeenCalledWith('a1');
-    expect(mockNativeDpop.deleteKeyPair).toHaveBeenCalledWith('a1');
-    expect(mockNativeDpop.rotateKeyPair).toHaveBeenCalledWith('a1');
-    expect(mockNativeDpop.getKeyInfo).toHaveBeenCalledWith('a1');
-    expect(mockNativeDpop.hasKeyPair).toHaveBeenCalledWith('a1');
-  });
-
-  it('throws on non-android platform', async () => {
-    Platform.OS = 'ios';
-
-    await expect(
-      DPoP.generateProof({
-        htu: 'https://api.example.com/token',
-        htm: 'POST',
-      })
-    ).rejects.toThrow('react-native-dpop (MVP atual) suporta somente Android.');
+    expect(mockNativeReactNativeDPoP.assertHardwareBacked).toHaveBeenCalledWith('a1');
+    expect(mockNativeReactNativeDPoP.deleteKeyPair).toHaveBeenCalledWith('a1');
+    expect(mockNativeReactNativeDPoP.rotateKeyPair).toHaveBeenCalledWith('a1');
+    expect(mockNativeReactNativeDPoP.getKeyInfo).toHaveBeenCalledWith('a1');
+    expect(mockNativeReactNativeDPoP.hasKeyPair).toHaveBeenCalledWith('a1');
   });
 });

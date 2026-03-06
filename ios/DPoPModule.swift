@@ -227,9 +227,9 @@ final class DPoPModule {
 
 }
 
-@objc extension Dpop {
+@objc extension ReactNativeDPoP {
   static func moduleName() -> String! {
-    "Dpop"
+    "ReactNativeDPoP"
   }
 
   static func requiresMainQueueSetup() -> Bool {

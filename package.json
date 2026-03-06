@@ -110,11 +110,11 @@
     ]
   },
   "codegenConfig": {
-    "name": "DpopSpec",
+    "name": "ReactNativeDPoPSpec",
     "type": "modules",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "com.dpop"
+      "javaPackageName": "com.reactnativedpop"
     }
   }
 }

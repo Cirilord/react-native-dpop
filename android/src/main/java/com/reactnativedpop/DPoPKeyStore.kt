@@ -1,4 +1,4 @@
-package com.dpop
+package com.reactnativedpop
 
 import android.content.Context
 import android.content.pm.PackageManager
