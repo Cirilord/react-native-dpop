@@ -1,4 +1,4 @@
-package com.dpop
+package com.reactnativedpop
 
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray

@@ -1,4 +1,4 @@
-package com.dpop
+package com.reactnativedpop
 
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -8,8 +8,8 @@ import java.security.Signature
 import java.util.UUID
 import org.json.JSONObject
 
-class DpopModule(reactContext: ReactApplicationContext) :
-  NativeDpopSpec(reactContext) {
+class DPoPModule(reactContext: ReactApplicationContext) :
+  NativeReactNativeDPoPSpec(reactContext) {
   private val keyStore = DPoPKeyStore(reactContext)
 
   private fun resolveAlias(alias: String?): String {
@@ -297,6 +297,6 @@ class DpopModule(reactContext: ReactApplicationContext) :
 
   companion object {
     private const val DEFAULT_ALIAS = "react-native-dpop"
-    const val NAME = NativeDpopSpec.NAME
+    const val NAME = NativeReactNativeDPoPSpec.NAME
   }
 }

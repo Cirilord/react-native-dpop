@@ -27,6 +27,7 @@ export interface Spec extends TurboModule {
   ): Promise<UnsafeObject>;
 }
 
-const nativeDpopModule = TurboModuleRegistry.get<Spec>('Dpop') ?? (NativeModules.Dpop as Spec | undefined);
+const nativeDpopModule =
+  TurboModuleRegistry.get<Spec>('ReactNativeDPoP') ?? (NativeModules.ReactNativeDPoP as Spec | undefined);
 
 export default nativeDpopModule as Spec;
