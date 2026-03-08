@@ -70,26 +70,52 @@ class DPoPModule(reactContext: ReactApplicationContext) :
     try {
       val effectiveAlias = resolveAlias(alias)
       if (!keyStore.hasKeyPair(effectiveAlias)) {
+        val fallbackReason = keyStore.getStrongBoxFallbackReason(effectiveAlias)
+        val hardwareAndroid = Arguments.createMap().apply {
+          putBoolean("strongBoxAvailable", keyStore.isStrongBoxAvailable())
+          putBoolean("strongBoxBacked", false)
+          if (fallbackReason != null) {
+            putString("strongBoxFallbackReason", fallbackReason)
+          } else {
+            putNull("strongBoxFallbackReason")
+          }
+        }
+        val hardware = Arguments.createMap().apply {
+          putMap("android", hardwareAndroid)
+        }
         val result = Arguments.createMap().apply {
           putString("alias", effectiveAlias)
           putBoolean("hasKeyPair", false)
+          putMap("hardware", hardware)
         }
         promise.resolve(result)
         return
       }
 
       val keyInfo = keyStore.getKeyInfo(effectiveAlias)
+      val fallbackReason = keyStore.getStrongBoxFallbackReason(effectiveAlias)
+      val hardwareAndroid = Arguments.createMap().apply {
+        putBoolean("strongBoxAvailable", keyInfo.strongBoxAvailable)
+        putBoolean("strongBoxBacked", keyInfo.strongBoxBacked)
+        if (keyInfo.securityLevel != null) {
+          putInt("securityLevel", keyInfo.securityLevel)
+        }
+        if (fallbackReason != null) {
+          putString("strongBoxFallbackReason", fallbackReason)
+        } else {
+          putNull("strongBoxFallbackReason")
+        }
+      }
+      val hardware = Arguments.createMap().apply {
+        putMap("android", hardwareAndroid)
+      }
       val result = Arguments.createMap().apply {
         putString("alias", keyInfo.alias)
         putString("algorithm", keyInfo.algorithm)
         putString("curve", keyInfo.curve)
         putBoolean("hasKeyPair", true)
         putBoolean("insideSecureHardware", keyInfo.insideSecureHardware)
-        putBoolean("strongBoxAvailable", keyInfo.strongBoxAvailable)
-        putBoolean("strongBoxBacked", keyInfo.strongBoxBacked)
-        if (keyInfo.securityLevel != null) {
-          putInt("securityLevel", keyInfo.securityLevel)
-        }
+        putMap("hardware", hardware)
       }
       promise.resolve(result)
     } catch (e: Exception) {

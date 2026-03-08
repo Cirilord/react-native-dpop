@@ -4,6 +4,21 @@ import Security
 final class SecureEnclaveKeyStore {
   private let service = "com.dpop.secureenclave"
 
+  func isAvailable() -> Bool {
+    #if targetEnvironment(simulator)
+      return false
+    #else
+      let probeAlias = "__secure_enclave_probe_\(UUID().uuidString)"
+      do {
+        try generateKeyPair(alias: probeAlias)
+        try deleteKeyPair(alias: probeAlias)
+        return true
+      } catch {
+        return false
+      }
+    #endif
+  }
+
   func generateKeyPair(alias: String) throws {
     try deleteKeyPair(alias: alias)
 

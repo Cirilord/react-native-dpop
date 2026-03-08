@@ -36,6 +36,14 @@ internal class DPoPKeyStore(private val context: Context) {
   companion object {
     private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
     private const val EC_CURVE = "secp256r1"
+    private const val META_PREFS = "react_native_dpop_keystore_meta"
+    private const val META_STRONGBOX_FALLBACK_PREFIX = "strongbox_fallback_reason_"
+    private const val REASON_UNAVAILABLE = "UNAVAILABLE"
+    private const val REASON_PROVIDER_ERROR = "PROVIDER_ERROR"
+  }
+
+  private val metadataPrefs by lazy {
+    context.getSharedPreferences(META_PREFS, Context.MODE_PRIVATE)
   }
 
   private val keyStore: KeyStore by lazy {
@@ -46,6 +54,7 @@ internal class DPoPKeyStore(private val context: Context) {
     if (keyStore.containsAlias(alias)) {
       keyStore.deleteEntry(alias)
     }
+    clearStrongBoxFallbackReason(alias)
   }
 
   fun generateKeyPair(alias: String): Boolean {
@@ -56,16 +65,20 @@ internal class DPoPKeyStore(private val context: Context) {
     if (keyStore.containsAlias(alias)) {
       keyStore.deleteEntry(alias)
     }
+    clearStrongBoxFallbackReason(alias)
 
     val generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, KEYSTORE_PROVIDER)
     if (isStrongBoxEnabled()) {
       try {
         generator.initialize(buildSpec(alias, useStrongBox = true))
         generator.generateKeyPair()
+        clearStrongBoxFallbackReason(alias)
         return true
       } catch (_: StrongBoxUnavailableException) {
+        storeStrongBoxFallbackReason(alias, REASON_UNAVAILABLE)
         // Fallback to hardware-backed keystore when StrongBox is unavailable.
       } catch (_: ProviderException) {
+        storeStrongBoxFallbackReason(alias, REASON_PROVIDER_ERROR)
         // Some devices expose StrongBox but fail during generation.
       }
     }
@@ -87,6 +100,12 @@ internal class DPoPKeyStore(private val context: Context) {
     val privateKey = keyStore.getKey(alias, null) as? PrivateKey
     val publicKey = keyStore.getCertificate(alias)?.publicKey as? ECPublicKey
     return privateKey != null && publicKey != null
+  }
+
+  fun isStrongBoxAvailable(): Boolean = isStrongBoxEnabled()
+
+  fun getStrongBoxFallbackReason(alias: String): String? {
+    return metadataPrefs.getString(strongBoxFallbackKey(alias), null)
   }
 
   fun getKeyInfo(alias: String): KeyStoreKeyInfo {
@@ -165,4 +184,14 @@ internal class DPoPKeyStore(private val context: Context) {
       false
     }
   }
+
+  private fun storeStrongBoxFallbackReason(alias: String, reason: String) {
+    metadataPrefs.edit().putString(strongBoxFallbackKey(alias), reason).apply()
+  }
+
+  private fun clearStrongBoxFallbackReason(alias: String) {
+    metadataPrefs.edit().remove(strongBoxFallbackKey(alias)).apply()
+  }
+
+  private fun strongBoxFallbackKey(alias: String): String = "$META_STRONGBOX_FALLBACK_PREFIX$alias"
 }

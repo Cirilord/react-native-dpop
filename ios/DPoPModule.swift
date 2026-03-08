@@ -44,23 +44,43 @@ final class DPoPModule {
 
   func getKeyInfo(alias: String?) -> [String: Any] {
     let effectiveAlias = resolveAlias(alias)
+    let secureEnclaveAvailable = keyStore.isSecureEnclaveAvailable()
+    let fallbackReason = keyStore.getSecureEnclaveFallbackReason(alias: effectiveAlias)
+    let secureEnclaveFallbackReason: Any = fallbackReason ?? NSNull()
     let keyInfo = keyStore.getKeyInfo(alias: effectiveAlias)
 
     if !keyInfo.hasKeyPair {
       return [
         "alias": effectiveAlias,
-        "hasKeyPair": false
+        "hasKeyPair": false,
+        "hardware": [
+          "ios": [
+            "secureEnclaveAvailable": secureEnclaveAvailable,
+            "secureEnclaveBacked": false,
+            "securityLevel": NSNull(),
+            "secureEnclaveFallbackReason": secureEnclaveFallbackReason
+          ]
+        ]
       ]
     }
+
+    let secureEnclaveBacked = secureEnclaveAvailable && keyInfo.insideSecureHardware
+    let securityLevel = secureEnclaveBacked ? 2 : 1
 
     return [
       "alias": keyInfo.alias,
       "algorithm": keyInfo.algorithm,
       "curve": keyInfo.curve,
       "hasKeyPair": true,
-      "insideSecureHardware": keyInfo.insideSecureHardware,
-      "strongBoxAvailable": keyInfo.strongBoxAvailable,
-      "strongBoxBacked": keyInfo.strongBoxBacked
+      "insideSecureHardware": secureEnclaveBacked,
+      "hardware": [
+        "ios": [
+          "secureEnclaveAvailable": secureEnclaveAvailable,
+          "secureEnclaveBacked": secureEnclaveBacked,
+          "securityLevel": securityLevel,
+          "secureEnclaveFallbackReason": secureEnclaveFallbackReason
+        ]
+      ]
     ]
   }
 

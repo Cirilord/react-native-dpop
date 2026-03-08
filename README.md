@@ -54,6 +54,7 @@ const isBound = await dpop.isBoundToAlias();
 - `GenerateProofInput`
 - `DPoPProofContext`
 - `DPoPKeyInfo`
+- `SecureHardwareFallbackReason = 'UNAVAILABLE' | 'PROVIDER_ERROR' | 'POLICY_REJECTED' | 'UNKNOWN'`
 - `PublicJwk`
 - `PublicKeyFormat = 'JWK' | 'DER' | 'RAW'`
 
@@ -97,6 +98,16 @@ Native errors are rejected with codes such as:
 ## Notes
 
 - If no alias is provided, the default alias is `react-native-dpop`.
+- `getKeyInfo` returns cross-platform fields and platform-specific details in `hardware`:
+  - Android: `hardware.android.strongBoxAvailable`, `hardware.android.strongBoxBacked`, `hardware.android.securityLevel`, `hardware.android.strongBoxFallbackReason`
+  - iOS: `hardware.ios.secureEnclaveAvailable`, `hardware.ios.secureEnclaveBacked`, `hardware.ios.securityLevel`, `hardware.ios.secureEnclaveFallbackReason`
+- Fallback reasons are sanitized enums (no raw native error): `UNAVAILABLE`, `PROVIDER_ERROR`, `POLICY_REJECTED`, `UNKNOWN`.
+- `securityLevel` semantics:
+  - `null`: no key material available (or not reported)
+  - `1`: not backed by secure enclave/strong dedicated hardware
+  - `2`: hardware-backed (iOS Secure Enclave, Android typically TEE)
+  - `3`: Android-only StrongBox (when reported by the device)
+- On iOS, `securityLevel` is normalized by this library (`2` for Secure Enclave-backed keys, `1` for Keychain fallback), not a native Apple numeric level API.
 - `htm` is normalized to uppercase in proof generation.
 - `ath` is derived from `accessToken` (`SHA-256`, base64url) when provided.
 - `jti` and `iat` are auto-generated when omitted.

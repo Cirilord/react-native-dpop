@@ -11,15 +11,28 @@ export type PublicJwk = {
 
 export type PublicKeyFormat = 'JWK' | 'DER' | 'RAW';
 
+export type SecureHardwareFallbackReason = 'UNAVAILABLE' | 'PROVIDER_ERROR' | 'POLICY_REJECTED' | 'UNKNOWN';
+
 export type DPoPKeyInfo = {
   alias: string;
   hasKeyPair: boolean;
   algorithm?: string;
   curve?: string;
   insideSecureHardware?: boolean;
-  securityLevel?: number;
-  strongBoxAvailable?: boolean;
-  strongBoxBacked?: boolean;
+  hardware?: {
+    android?: {
+      strongBoxAvailable: boolean;
+      strongBoxBacked: boolean;
+      securityLevel?: number;
+      strongBoxFallbackReason?: SecureHardwareFallbackReason | null;
+    };
+    ios?: {
+      secureEnclaveAvailable: boolean;
+      secureEnclaveBacked: boolean;
+      securityLevel?: number | null;
+      secureEnclaveFallbackReason?: SecureHardwareFallbackReason | null;
+    };
+  };
 };
 
 export type GenerateProofInput = {
