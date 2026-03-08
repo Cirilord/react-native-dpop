@@ -98,9 +98,15 @@ Our pre-commit hooks verify that your commit message matches this format when co
 
 ### Publishing to npm
 
-We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+We use [release-it](https://github.com/release-it/release-it) to handle version bumping, git tags, GitHub releases, and npm publishing.
 
-To publish new versions, run the following:
+Preferred flow is CI:
+
+1. Open **GitHub Actions** and run the **Release** workflow on `main`.
+2. Select the increment type (`patch`, `minor`, `major`).
+3. Ensure repository secret `NPM_TOKEN` is configured (automation token from npm).
+
+For local/manual releases (maintainers only), run:
 
 ```sh
 yarn release

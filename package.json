@@ -51,7 +51,8 @@
     "example": "yarn workspace react-native-dpop-example",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
-    "release": "release-it --only-version",
+    "release": "release-it",
+    "release:version": "release-it --only-version",
     "test": "jest",
     "typecheck": "tsc"
   },
