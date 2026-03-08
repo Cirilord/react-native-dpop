@@ -30,6 +30,12 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Setup npm auth
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
       - name: Configure git user
         run: |
           git config user.name "github-actions[bot]"
@@ -42,8 +48,14 @@ jobs:
           yarn test --maxWorkers=2
           yarn prepare
 
+      - name: Verify npm auth
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm whoami
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn release-it --ci --increment ${{ inputs.increment }}
