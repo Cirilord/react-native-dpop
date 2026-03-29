@@ -106,7 +106,8 @@ export class DPoP {
       input.additional ?? null,
       input.kid ?? null,
       input.jti ?? null,
-      input.iat ?? null,
+      // RN 0.75 Android bridge can crash when a nullable Double arrives as null.
+      input.iat ?? Math.floor(Date.now() / 1000),
       input.alias ?? null
     )) as GenerateProofResult;
 

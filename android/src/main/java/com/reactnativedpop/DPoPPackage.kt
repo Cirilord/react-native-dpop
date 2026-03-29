@@ -5,7 +5,6 @@ import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
-import java.util.HashMap
 
 class DPoPPackage : BaseReactPackage() {
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
@@ -19,12 +18,13 @@ class DPoPPackage : BaseReactPackage() {
   override fun getReactModuleInfoProvider() = ReactModuleInfoProvider {
     mapOf(
       DPoPModule.NAME to ReactModuleInfo(
-        name = DPoPModule.NAME,
-        className = DPoPModule.NAME,
-        canOverrideExistingModule = false,
-        needsEagerInit = false,
-        isCxxModule = false,
-        isTurboModule = true
+        DPoPModule.NAME,
+        DPoPModule::class.java.name,
+        false,
+        false,
+        false,
+        false,
+        true
       )
     )
   }

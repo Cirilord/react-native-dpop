@@ -56,7 +56,7 @@ describe('DPoP', () => {
       null,
       null,
       null,
-      null,
+      expect.any(Number),
       'alias-1'
     );
     expect(dpop.proof).toBe('proof.jwt');

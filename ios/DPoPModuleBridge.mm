@@ -70,7 +70,7 @@ RCT_EXTERN_METHOD(generateProof:(NSString *)htu
                   additional:(NSDictionary * _Nullable)additional
                   kid:(NSString * _Nullable)kid
                   jti:(NSString * _Nullable)jti
-                  iat:(NSNumber * _Nullable)iat
+                  iat:(id _Nullable)iat
                   alias:(NSString * _Nullable)alias
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)

@@ -347,12 +347,19 @@ final class DPoPModule {
     additional: [String: Any]?,
     kid: String?,
     jti: String?,
-    iat: NSNumber?,
+    iat: Any?,
     alias: String?,
     resolve: @escaping RCTPromiseResolveBlock,
     reject: @escaping RCTPromiseRejectBlock
   ) {
     do {
+      let normalizedIat: NSNumber?
+      if iat is NSNull {
+        normalizedIat = nil
+      } else {
+        normalizedIat = iat as? NSNumber
+      }
+
       resolve(
         try DPoPModule.shared.generateProof(
           htu: htu,
@@ -362,7 +369,7 @@ final class DPoPModule {
           additional: additional,
           kid: kid,
           jti: jti,
-          iat: iat,
+          iat: normalizedIat,
           alias: alias
         )
       )

@@ -18,6 +18,7 @@
   "license": "MIT",
   "author": "Pedro Cirilo <phscirilo123@gmail.com> (https://github.com/Cirilord)",
   "main": "./lib/module/index.js",
+  "react-native": "./src/index.tsx",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
     ".": {
@@ -47,8 +48,8 @@
     "!**/.*"
   ],
   "scripts": {
-    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "example": "yarn workspace react-native-dpop-example",
+    "clean": "del-cli android/build examples/v0.83/android/build examples/v0.83/android/app/build examples/v0.83/ios/build lib",
+    "example": "yarn workspace react-native-dpop-example-v0.83",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
     "release": "release-it",
@@ -89,7 +90,8 @@
     "typescript": "^5.9.2"
   },
   "workspaces": [
-    "example"
+    "examples/v0.75",
+    "examples/v0.83"
   ],
   "packageManager": "yarn@4.11.0",
   "react-native-builder-bob": {
