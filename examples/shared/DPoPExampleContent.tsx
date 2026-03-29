@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback } from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import { DPoP } from 'react-native-dpop';
 
@@ -47,6 +47,6 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   buttonText: {
-    color: '#ffffff'
-  }
+    color: '#ffffff',
+  },
 });

@@ -1,6 +1,7 @@
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
+import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-plugin-prettier';
 import { defineConfig } from 'eslint/config';
 import path from 'node:path';
@@ -15,15 +16,59 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
+  importPlugin.flatConfigs.recommended,
+  importPlugin.flatConfigs.typescript,
+  importPlugin.flatConfigs['react-native'],
   {
     extends: fixupConfigRules(compat.extends('@react-native', 'prettier')),
+    settings: {
+      'import/core-modules': ['react-native', 'react-native-dpop', 'react-native/Libraries/Types/CodegenTypes'],
+      'import/extensions': ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.json'],
+      'import/ignore': ['node_modules/react-native/', 'react-native(/.*)?$'],
+      'import/resolver': {
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs', '.json'],
+        },
+      },
+    },
     plugins: { prettier },
     rules: {
+      'import/order': [
+        'error',
+        {
+          groups: [['builtin', 'external'], 'internal', ['parent', 'sibling', 'index'], 'object'],
+          pathGroups: [
+            {
+              pattern: '@/**',
+              group: 'internal',
+              position: 'before',
+            },
+          ],
+          pathGroupsExcludedImportTypes: ['builtin'],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
       'react/react-in-jsx-scope': 'off',
       'prettier/prettier': 'error',
     },
   },
   {
-    ignores: ['node_modules/', 'lib/'],
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          fixStyle: 'inline-type-imports',
+          prefer: 'type-imports',
+        },
+      ],
+    },
+  },
+  {
+    ignores: ['node_modules/', '**/node_modules/**', 'lib/'],
   },
 ]);

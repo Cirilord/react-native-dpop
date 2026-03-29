@@ -1,29 +1,20 @@
 {
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "paths": {
-      "react-native-dpop": ["./src/index"]
-    },
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
     "customConditions": ["react-native-strict-api"],
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
     "noImplicitUseStrict": false,
     "noStrictGenericChecks": false,
-    "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "paths": {
+      "react-native-dpop": ["./src/index"]
+    },
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
+    "rootDir": ".",
     "target": "ESNext",
     "verbatimModuleSyntax": true
   }

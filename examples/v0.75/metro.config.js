@@ -1,5 +1,5 @@
-const path = require('path');
 const { getDefaultConfig } = require('@react-native/metro-config');
+const path = require('path');
 const { withMetroConfig } = require('react-native-monorepo-config');
 
 const root = path.resolve(__dirname, '../..');

@@ -65,7 +65,7 @@ type GenerateProofResult = {
 
 export class DPoP {
   public readonly proof: string;
-  public readonly alias?: string;
+  public readonly alias: string | undefined;
   public readonly proofContext: DPoPProofContext;
 
   private constructor(proof: string, proofContext: DPoPProofContext, alias?: string) {

@@ -16,8 +16,8 @@ jest.mock('../NativeReactNativeDPoP', () => ({
   },
 }));
 
-import NativeReactNativeDPoP from '../NativeReactNativeDPoP';
 import { DPoP } from '../index';
+import NativeReactNativeDPoP from '../NativeReactNativeDPoP';
 
 describe('DPoP', () => {
   const mockNativeReactNativeDPoP = NativeReactNativeDPoP as jest.Mocked<typeof NativeReactNativeDPoP>;

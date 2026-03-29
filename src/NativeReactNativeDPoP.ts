@@ -28,6 +28,7 @@ export interface Spec extends TurboModule {
 }
 
 const nativeDpopModule =
-  TurboModuleRegistry.get<Spec>('ReactNativeDPoP') ?? (NativeModules.ReactNativeDPoP as Spec | undefined);
+  // eslint-disable-next-line dot-notation -- required by noPropertyAccessFromIndexSignature from @tsconfig/strictest
+  TurboModuleRegistry.get<Spec>('ReactNativeDPoP') ?? (NativeModules['ReactNativeDPoP'] as Spec | undefined);
 
 export default nativeDpopModule as Spec;
