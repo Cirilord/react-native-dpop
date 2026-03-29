@@ -1,8 +1,9 @@
+import { useCallback } from 'react'
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import { DPoP } from 'react-native-dpop';
 
 export default function DPoPExampleContent() {
-  const onPress = async () => {
+  const onPress = useCallback(async () => {
     const dpop = await DPoP.generateProof({
       htm: 'GET',
       htu: 'https://api.example.com/resource',
@@ -18,12 +19,12 @@ export default function DPoPExampleContent() {
     console.log(await dpop.signWithDpopPrivateKey('RAW'));
     console.log(await dpop.isBoundToAlias());
     console.log(await DPoP.getKeyInfo());
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
-      <TouchableHighlight onPress={onPress}>
-        <Text>Teste</Text>
+      <TouchableHighlight onPress={onPress} style={styles.button}>
+        <Text style={styles.buttonText}>Teste</Text>
       </TouchableHighlight>
     </View>
   );
@@ -36,4 +37,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  button: {
+    alignItems: 'center',
+    backgroundColor: 'blue',
+    borderRadius: 4,
+    height: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    width: '80%',
+  },
+  buttonText: {
+    color: '#ffffff'
+  }
 });
