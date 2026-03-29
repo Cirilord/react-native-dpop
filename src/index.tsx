@@ -12,6 +12,8 @@ export type PublicJwk = {
 export type PublicKeyFormat = 'JWK' | 'DER' | 'RAW';
 
 export type SecureHardwareFallbackReason = 'UNAVAILABLE' | 'PROVIDER_ERROR' | 'POLICY_REJECTED' | 'UNKNOWN';
+export type AndroidSecurityLevelName = 'SOFTWARE' | 'TRUSTED_ENVIRONMENT' | 'STRONGBOX';
+export type IOSSecurityLevelName = 'SOFTWARE' | 'SECURE_ENCLAVE';
 
 export type DPoPKeyInfo = {
   alias: string;
@@ -24,12 +26,14 @@ export type DPoPKeyInfo = {
       strongBoxAvailable: boolean;
       strongBoxBacked: boolean;
       securityLevel?: number;
+      securityLevelName?: AndroidSecurityLevelName;
       strongBoxFallbackReason?: SecureHardwareFallbackReason | null;
     };
     ios?: {
       secureEnclaveAvailable: boolean;
       secureEnclaveBacked: boolean;
       securityLevel?: number | null;
+      securityLevelName?: IOSSecurityLevelName;
       secureEnclaveFallbackReason?: SecureHardwareFallbackReason | null;
     };
   };

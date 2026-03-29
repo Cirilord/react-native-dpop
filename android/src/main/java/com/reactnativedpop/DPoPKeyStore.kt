@@ -28,6 +28,7 @@ internal data class KeyStoreKeyInfo(
   val curve: String,
   val insideSecureHardware: Boolean,
   val securityLevel: Int?,
+  val securityLevelName: String,
   val strongBoxAvailable: Boolean,
   val strongBoxBacked: Boolean
 )
@@ -119,6 +120,7 @@ internal class DPoPKeyStore(private val context: Context) {
       curve = "P-256",
       insideSecureHardware = keyInfo.isInsideSecureHardware,
       securityLevel = readSecurityLevel(keyInfo),
+      securityLevelName = readSecurityLevelName(keyInfo),
       strongBoxAvailable = isStrongBoxEnabled(),
       strongBoxBacked = readStrongBoxBacked(keyInfo)
     )
@@ -169,6 +171,24 @@ internal class DPoPKeyStore(private val context: Context) {
       method.invoke(keyInfo) as? Int
     } catch (_: Exception) {
       null
+    }
+  }
+
+  private fun readSecurityLevelName(keyInfo: KeyInfo): String {
+    val strongBoxBacked = readStrongBoxBacked(keyInfo)
+    val securityLevel = readSecurityLevel(keyInfo)
+
+    return when (securityLevel) {
+      1 -> "SOFTWARE"
+      2 -> "TRUSTED_ENVIRONMENT"
+      3 -> "STRONGBOX"
+      else -> {
+        when {
+          strongBoxBacked -> "STRONGBOX"
+          keyInfo.isInsideSecureHardware -> "TRUSTED_ENVIRONMENT"
+          else -> "SOFTWARE"
+        }
+      }
     }
   }
 

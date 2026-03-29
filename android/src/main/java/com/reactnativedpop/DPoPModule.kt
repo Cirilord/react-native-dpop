@@ -12,8 +12,30 @@ class DPoPModule(reactContext: ReactApplicationContext) :
   NativeReactNativeDPoPSpec(reactContext) {
   private val keyStore = DPoPKeyStore(reactContext)
 
+  companion object {
+    private const val DEFAULT_ALIAS = "react-native-dpop"
+    const val NAME = NativeReactNativeDPoPSpec.NAME
+    private const val UNKNOWN_STRONGBOX_FALLBACK_REASON = "UNKNOWN"
+  }
+
   private fun resolveAlias(alias: String?): String {
     return alias ?: DEFAULT_ALIAS
+  }
+
+  private fun resolveStrongBoxFallbackReason(
+    strongBoxAvailable: Boolean,
+    strongBoxBacked: Boolean,
+    fallbackReason: String?
+  ): String? {
+    if (fallbackReason != null) {
+      return fallbackReason
+    }
+
+    return if (strongBoxAvailable && !strongBoxBacked) {
+      UNKNOWN_STRONGBOX_FALLBACK_REASON
+    } else {
+      null
+    }
   }
 
   override fun assertHardwareBacked(alias: String?, promise: Promise) {
@@ -70,9 +92,14 @@ class DPoPModule(reactContext: ReactApplicationContext) :
     try {
       val effectiveAlias = resolveAlias(alias)
       if (!keyStore.hasKeyPair(effectiveAlias)) {
-        val fallbackReason = keyStore.getStrongBoxFallbackReason(effectiveAlias)
+        val strongBoxAvailable = keyStore.isStrongBoxAvailable()
+        val fallbackReason = resolveStrongBoxFallbackReason(
+          strongBoxAvailable = strongBoxAvailable,
+          strongBoxBacked = false,
+          fallbackReason = keyStore.getStrongBoxFallbackReason(effectiveAlias)
+        )
         val hardwareAndroid = Arguments.createMap().apply {
-          putBoolean("strongBoxAvailable", keyStore.isStrongBoxAvailable())
+          putBoolean("strongBoxAvailable", strongBoxAvailable)
           putBoolean("strongBoxBacked", false)
           if (fallbackReason != null) {
             putString("strongBoxFallbackReason", fallbackReason)
@@ -93,13 +120,18 @@ class DPoPModule(reactContext: ReactApplicationContext) :
       }
 
       val keyInfo = keyStore.getKeyInfo(effectiveAlias)
-      val fallbackReason = keyStore.getStrongBoxFallbackReason(effectiveAlias)
+      val fallbackReason = resolveStrongBoxFallbackReason(
+        strongBoxAvailable = keyInfo.strongBoxAvailable,
+        strongBoxBacked = keyInfo.strongBoxBacked,
+        fallbackReason = keyStore.getStrongBoxFallbackReason(effectiveAlias)
+      )
       val hardwareAndroid = Arguments.createMap().apply {
         putBoolean("strongBoxAvailable", keyInfo.strongBoxAvailable)
         putBoolean("strongBoxBacked", keyInfo.strongBoxBacked)
         if (keyInfo.securityLevel != null) {
           putInt("securityLevel", keyInfo.securityLevel)
         }
+        putString("securityLevelName", keyInfo.securityLevelName)
         if (fallbackReason != null) {
           putString("strongBoxFallbackReason", fallbackReason)
         } else {
@@ -319,10 +351,5 @@ class DPoPModule(reactContext: ReactApplicationContext) :
     } catch (e: Exception) {
       promise.reject("ERR_DPOP_GENERATE_PROOF", e.message, e)
     }
-  }
-
-  companion object {
-    private const val DEFAULT_ALIAS = "react-native-dpop"
-    const val NAME = NativeReactNativeDPoPSpec.NAME
   }
 }

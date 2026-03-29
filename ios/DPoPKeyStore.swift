@@ -19,6 +19,7 @@ final class DPoPKeyStore {
   private let keychain = KeychainKeyStore()
   private let fallbackReasonDefaults = UserDefaults.standard
   private let fallbackReasonPrefix = "react_native_dpop_secure_enclave_fallback_reason_"
+  private let unavailableFallbackReason = "UNAVAILABLE"
   private lazy var secureEnclaveAvailable = secureEnclave.isAvailable()
 
   func generateKeyPair(alias: String) throws {
@@ -100,7 +101,15 @@ final class DPoPKeyStore {
   }
 
   func getSecureEnclaveFallbackReason(alias: String) -> String? {
-    fallbackReasonDefaults.string(forKey: fallbackReasonKey(alias: alias))
+    if !secureEnclaveAvailable && keychain.hasKeyPair(alias: alias) {
+      return unavailableFallbackReason
+    }
+
+    if let storedReason = fallbackReasonDefaults.string(forKey: fallbackReasonKey(alias: alias)) {
+      return storedReason
+    }
+
+    return nil
   }
 
   private func storeSecureEnclaveFallbackReason(alias: String, reason: String) {

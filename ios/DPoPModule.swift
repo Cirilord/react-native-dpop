@@ -7,6 +7,8 @@ final class DPoPModule {
 
   private let keyStore = DPoPKeyStore()
   private let defaultAlias = "react-native-dpop"
+  private let unknownSecureEnclaveFallbackReason = "UNKNOWN"
+  private let unavailableSecureEnclaveFallbackReason = "UNAVAILABLE"
 
   private init() {}
 
@@ -45,9 +47,15 @@ final class DPoPModule {
   func getKeyInfo(alias: String?) -> [String: Any] {
     let effectiveAlias = resolveAlias(alias)
     let secureEnclaveAvailable = keyStore.isSecureEnclaveAvailable()
-    let fallbackReason = keyStore.getSecureEnclaveFallbackReason(alias: effectiveAlias)
-    let secureEnclaveFallbackReason: Any = fallbackReason ?? NSNull()
     let keyInfo = keyStore.getKeyInfo(alias: effectiveAlias)
+    let secureEnclaveBacked = secureEnclaveAvailable && keyInfo.insideSecureHardware
+    let fallbackReason = resolveSecureEnclaveFallbackReason(
+      secureEnclaveAvailable: secureEnclaveAvailable,
+      secureEnclaveBacked: secureEnclaveBacked,
+      hasKeyPair: keyInfo.hasKeyPair,
+      fallbackReason: keyStore.getSecureEnclaveFallbackReason(alias: effectiveAlias)
+    )
+    let secureEnclaveFallbackReason: Any = fallbackReason ?? NSNull()
 
     if !keyInfo.hasKeyPair {
       return [
@@ -58,14 +66,15 @@ final class DPoPModule {
             "secureEnclaveAvailable": secureEnclaveAvailable,
             "secureEnclaveBacked": false,
             "securityLevel": NSNull(),
+            "securityLevelName": "SOFTWARE",
             "secureEnclaveFallbackReason": secureEnclaveFallbackReason
           ]
         ]
       ]
     }
 
-    let secureEnclaveBacked = secureEnclaveAvailable && keyInfo.insideSecureHardware
     let securityLevel = secureEnclaveBacked ? 2 : 1
+    let securityLevelName = secureEnclaveBacked ? "SECURE_ENCLAVE" : "SOFTWARE"
 
     return [
       "alias": keyInfo.alias,
@@ -78,10 +87,32 @@ final class DPoPModule {
           "secureEnclaveAvailable": secureEnclaveAvailable,
           "secureEnclaveBacked": secureEnclaveBacked,
           "securityLevel": securityLevel,
+          "securityLevelName": securityLevelName,
           "secureEnclaveFallbackReason": secureEnclaveFallbackReason
         ]
       ]
     ]
+  }
+
+  private func resolveSecureEnclaveFallbackReason(
+    secureEnclaveAvailable: Bool,
+    secureEnclaveBacked: Bool,
+    hasKeyPair: Bool,
+    fallbackReason: String?
+  ) -> String? {
+    if let fallbackReason {
+      return fallbackReason
+    }
+
+    if hasKeyPair && !secureEnclaveAvailable {
+      return unavailableSecureEnclaveFallbackReason
+    }
+
+    if hasKeyPair && !secureEnclaveBacked {
+      return unknownSecureEnclaveFallbackReason
+    }
+
+    return nil
   }
 
   func getPublicKeyDer(alias: String?) throws -> String {
