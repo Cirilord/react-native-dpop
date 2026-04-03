@@ -30,16 +30,6 @@ final class DPoPModule {
     }
   }
 
-  func calculateThumbprint(alias: String?) throws -> String {
-    let effectiveAlias = resolveAlias(alias)
-    if !keyStore.hasKeyPair(alias: effectiveAlias) {
-      try keyStore.generateKeyPair(alias: effectiveAlias)
-    }
-    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
-    let coordinates = try DPoPUtils.getPublicCoordinates(fromRawPublicKey: try DPoPUtils.toRawPublicKey(keyPair.publicKey))
-    return DPoPUtils.calculateThumbprint(kty: "EC", crv: "P-256", x: coordinates.x, y: coordinates.y)
-  }
-
   func deleteKeyPair(alias: String?) throws {
     try keyStore.deleteKeyPair(alias: resolveAlias(alias))
   }
@@ -146,6 +136,16 @@ final class DPoPModule {
     }
     let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
     return DPoPUtils.base64UrlEncode(try DPoPUtils.toRawPublicKey(keyPair.publicKey))
+  }
+
+  func getPublicKeyThumbprint(alias: String?) throws -> String {
+    let effectiveAlias = resolveAlias(alias)
+    if !keyStore.hasKeyPair(alias: effectiveAlias) {
+      try keyStore.generateKeyPair(alias: effectiveAlias)
+    }
+    let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
+    let coordinates = try DPoPUtils.getPublicCoordinates(fromRawPublicKey: try DPoPUtils.toRawPublicKey(keyPair.publicKey))
+    return DPoPUtils.getPublicKeyThumbprint(kty: "EC", crv: "P-256", x: coordinates.x, y: coordinates.y)
   }
 
   func hasKeyPair(alias: String?) -> Bool {
@@ -296,14 +296,6 @@ final class DPoPModule {
     }
   }
 
-  func calculateThumbprint(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    do {
-      resolve(try DPoPModule.shared.calculateThumbprint(alias: alias))
-    } catch {
-      reject("ERR_DPOP_CALCULATE_THUMBPRINT", error.localizedDescription, error)
-    }
-  }
-
   func deleteKeyPair(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
       try DPoPModule.shared.deleteKeyPair(alias: alias)
@@ -338,6 +330,14 @@ final class DPoPModule {
       resolve(try DPoPModule.shared.getPublicKeyRaw(alias: alias))
     } catch {
       reject("ERR_DPOP_PUBLIC_KEY", error.localizedDescription, error)
+    }
+  }
+
+  func getPublicKeyThumbprint(_ alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      resolve(try DPoPModule.shared.getPublicKeyThumbprint(alias: alias))
+    } catch {
+      reject("ERR_DPOP_CALCULATE_THUMBPRINT", error.localizedDescription, error)
     }
   }
 

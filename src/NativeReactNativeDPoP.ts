@@ -4,12 +4,12 @@ import type { UnsafeObject } from 'react-native/Libraries/Types/CodegenTypes';
 
 export interface Spec extends TurboModule {
   assertHardwareBacked(alias: string | null): Promise<void>;
-  calculateThumbprint(alias: string | null): Promise<string>;
   deleteKeyPair(alias: string | null): Promise<void>;
   getKeyInfo(alias: string | null): Promise<UnsafeObject>;
   getPublicKeyDer(alias: string | null): Promise<string>;
   getPublicKeyJwk(alias: string | null): Promise<UnsafeObject>;
   getPublicKeyRaw(alias: string | null): Promise<string>;
+  getPublicKeyThumbprint(alias: string | null): Promise<string>;
   hasKeyPair(alias: string | null): Promise<boolean>;
   isBoundToAlias(proof: string, alias: string | null): Promise<boolean>;
   rotateKeyPair(alias: string | null): Promise<void>;

@@ -2,13 +2,13 @@ jest.mock('../NativeReactNativeDPoP', () => ({
   __esModule: true,
   default: {
     assertHardwareBacked: jest.fn(),
-    calculateThumbprint: jest.fn(),
     deleteKeyPair: jest.fn(),
     generateProof: jest.fn(),
     getKeyInfo: jest.fn(),
     getPublicKeyDer: jest.fn(),
     getPublicKeyJwk: jest.fn(),
     getPublicKeyRaw: jest.fn(),
+    getPublicKeyThumbprint: jest.fn(),
     hasKeyPair: jest.fn(),
     isBoundToAlias: jest.fn(),
     rotateKeyPair: jest.fn(),
@@ -89,19 +89,19 @@ describe('DPoP', () => {
       proof: 'proof.jwt',
       proofContext,
     });
-    mockNativeReactNativeDPoP.calculateThumbprint.mockResolvedValue('thumb');
-    mockNativeReactNativeDPoP.signWithDPoPPrivateKey.mockResolvedValue('sig');
+    mockNativeReactNativeDPoP.getPublicKeyThumbprint.mockResolvedValue('thumb');
     mockNativeReactNativeDPoP.isBoundToAlias.mockResolvedValue(true);
+    mockNativeReactNativeDPoP.signWithDPoPPrivateKey.mockResolvedValue('sig');
 
     const dPoP = await DPoP.generateProof({ htu: proofContext.htu, htm: 'POST' });
 
-    expect(await dPoP.calculateThumbprint()).toBe('thumb');
-    expect(await dPoP.signWithDPoPPrivateKey('payload')).toBe('sig');
+    expect(await dPoP.getPublicKeyThumbprint()).toBe('thumb');
     expect(await dPoP.isBoundToAlias()).toBe(true);
+    expect(await dPoP.signWithDPoPPrivateKey('payload')).toBe('sig');
 
-    expect(mockNativeReactNativeDPoP.calculateThumbprint).toHaveBeenCalledWith(null);
-    expect(mockNativeReactNativeDPoP.signWithDPoPPrivateKey).toHaveBeenCalledWith('payload', null);
+    expect(mockNativeReactNativeDPoP.getPublicKeyThumbprint).toHaveBeenCalledWith(null);
     expect(mockNativeReactNativeDPoP.isBoundToAlias).toHaveBeenCalledWith('proof.jwt', null);
+    expect(mockNativeReactNativeDPoP.signWithDPoPPrivateKey).toHaveBeenCalledWith('payload', null);
   });
 
   it('calls static key management methods', async () => {

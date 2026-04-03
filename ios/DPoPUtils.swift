@@ -28,11 +28,6 @@ enum DPoPUtils {
     return base64UrlEncode(sha256(data))
   }
 
-  static func calculateThumbprint(kty: String, crv: String, x: String, y: String) -> String {
-    let canonical = "{\"crv\":\"\(crv)\",\"kty\":\"\(kty)\",\"x\":\"\(x)\",\"y\":\"\(y)\"}"
-    return base64UrlEncode(sha256(Data(canonical.utf8)))
-  }
-
   static func jsonData(_ object: Any) throws -> Data {
     if #available(iOS 11.0, *) {
       return try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
@@ -90,6 +85,11 @@ enum DPoPUtils {
     let x = raw.subdata(in: 1..<33)
     let y = raw.subdata(in: 33..<65)
     return (base64UrlEncode(x), base64UrlEncode(y))
+  }
+
+  static func getPublicKeyThumbprint(kty: String, crv: String, x: String, y: String) -> String {
+    let canonical = "{\"crv\":\"\(crv)\",\"kty\":\"\(kty)\",\"x\":\"\(x)\",\"y\":\"\(y)\"}"
+    return base64UrlEncode(sha256(Data(canonical.utf8)))
   }
 
   static func toRawPublicKey(_ publicKey: SecKey) throws -> Data {

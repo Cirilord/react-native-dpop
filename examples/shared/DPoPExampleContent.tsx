@@ -10,9 +10,9 @@ export default function DPoPExampleContent() {
       kid: '123',
     });
 
-    const thumbprint = await dPoP.calculateThumbprint();
+    const publicKeyThumbprint = await dPoP.getPublicKeyThumbprint();
 
-    console.log(dPoP, dPoP.proof, thumbprint);
+    console.log(dPoP, dPoP.proof, publicKeyThumbprint);
     console.log(await dPoP.getPublicKey('DER'));
     console.log(await dPoP.getPublicKey('JWK'));
     console.log(await dPoP.getPublicKey('RAW'));

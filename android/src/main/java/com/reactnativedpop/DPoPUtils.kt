@@ -18,12 +18,6 @@ internal object DPoPUtils {
     return Base64.getUrlEncoder().withoutPadding().encodeToString(input)
   }
 
-  internal fun calculateThumbprint(kty: String, crv: String, x: String, y: String): String {
-    val canonicalJwk = """{"crv":"$crv","kty":"$kty","x":"$x","y":"$y"}"""
-    val hash = MessageDigest.getInstance("SHA-256").digest(canonicalJwk.toByteArray(Charsets.UTF_8))
-    return base64UrlEncode(hash)
-  }
-
   internal fun derToJose(derSignature: ByteArray, partLength: Int = 32): ByteArray {
     if (derSignature.isEmpty() || derSignature[0].toInt() != 0x30) {
       throw IllegalArgumentException("Invalid DER signature format")
@@ -63,6 +57,12 @@ internal object DPoPUtils {
     val x = base64UrlEncode(toUnsignedFixedLength(publicKey.w.affineX, 32))
     val y = base64UrlEncode(toUnsignedFixedLength(publicKey.w.affineY, 32))
     return Pair(x, y)
+  }
+
+  internal fun getPublicKeyThumbprint(kty: String, crv: String, x: String, y: String): String {
+    val canonicalJwk = """{"crv":"$crv","kty":"$kty","x":"$x","y":"$y"}"""
+    val hash = MessageDigest.getInstance("SHA-256").digest(canonicalJwk.toByteArray(Charsets.UTF_8))
+    return base64UrlEncode(hash)
   }
 
   internal fun hashAccessToken(accessToken: String): String {

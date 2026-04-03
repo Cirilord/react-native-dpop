@@ -83,8 +83,8 @@ export class DPoP {
     this.alias = alias;
   }
 
-  public async calculateThumbprint(): Promise<string> {
-    return NativeReactNativeDPoP.calculateThumbprint(this.alias ?? null);
+  public async getPublicKeyThumbprint(): Promise<string> {
+    return NativeReactNativeDPoP.getPublicKeyThumbprint(this.alias ?? null);
   }
 
   public async getPublicKey(format: PublicKeyFormat): Promise<PublicJwk | string> {

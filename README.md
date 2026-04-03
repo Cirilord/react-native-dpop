@@ -43,7 +43,7 @@ const dPoP = await DPoP.generateProof({
 });
 
 const proof = dPoP.proof;
-const thumbprint = await dPoP.calculateThumbprint();
+const thumbprint = await dPoP.getPublicKeyThumbprint();
 const publicJwk = await dPoP.getPublicKey('JWK');
 const keyInfo = await DPoP.getKeyInfo();
 ```
@@ -65,8 +65,8 @@ const keyInfo = await DPoP.getKeyInfo();
 - `proof: string`
 - `proofContext: DPoPProofContext`
 - `alias?: string`
-- `calculateThumbprint(): Promise<string>`
 - `getPublicKey(format): Promise<PublicJwk | string>`
+- `getPublicKeyThumbprint(): Promise<string>`
 - `signWithDPoPPrivateKey(payload): Promise<string>`
 - `isBoundToAlias(alias?): Promise<boolean>`
 

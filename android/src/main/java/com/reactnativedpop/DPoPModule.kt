@@ -57,27 +57,6 @@ class DPoPModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun calculateThumbprint(alias: String?, promise: Promise) {
-    try {
-      val effectiveAlias = resolveAlias(alias)
-      if (!keyStore.hasKeyPair(effectiveAlias)) {
-        keyStore.generateKeyPair(effectiveAlias)
-      }
-
-      val keyPair = keyStore.getKeyPair(effectiveAlias)
-      val coordinates = DPoPUtils.getPublicCoordinates(keyPair.publicKey)
-      val thumbprint = DPoPUtils.calculateThumbprint(
-        kty = "EC",
-        crv = "P-256",
-        x = coordinates.first,
-        y = coordinates.second
-      )
-      promise.resolve(thumbprint)
-    } catch (e: Exception) {
-      promise.reject("ERR_DPOP_CALCULATE_THUMBPRINT", e.message, e)
-    }
-  }
-
   override fun deleteKeyPair(alias: String?, promise: Promise) {
     try {
       val effectiveAlias = resolveAlias(alias)
@@ -202,6 +181,27 @@ class DPoPModule(reactContext: ReactApplicationContext) :
       promise.resolve(DPoPUtils.base64UrlEncode(raw))
     } catch (e: Exception) {
       promise.reject("ERR_DPOP_PUBLIC_KEY", e.message, e)
+    }
+  }
+
+  override fun getPublicKeyThumbprint(alias: String?, promise: Promise) {
+    try {
+      val effectiveAlias = resolveAlias(alias)
+      if (!keyStore.hasKeyPair(effectiveAlias)) {
+        keyStore.generateKeyPair(effectiveAlias)
+      }
+
+      val keyPair = keyStore.getKeyPair(effectiveAlias)
+      val coordinates = DPoPUtils.getPublicCoordinates(keyPair.publicKey)
+      val thumbprint = DPoPUtils.getPublicKeyThumbprint(
+        kty = "EC",
+        crv = "P-256",
+        x = coordinates.first,
+        y = coordinates.second
+      )
+      promise.resolve(thumbprint)
+    } catch (e: Exception) {
+      promise.reject("ERR_DPOP_CALCULATE_THUMBPRINT", e.message, e)
     }
   }
 

@@ -21,10 +21,6 @@ RCT_EXTERN_METHOD(assertHardwareBacked:(NSString * _Nullable)alias
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(calculateThumbprint:(NSString * _Nullable)alias
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject)
-
 RCT_EXTERN_METHOD(deleteKeyPair:(NSString * _Nullable)alias
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
@@ -42,6 +38,10 @@ RCT_EXTERN_METHOD(getPublicKeyJwk:(NSString * _Nullable)alias
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(getPublicKeyRaw:(NSString * _Nullable)alias
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(getPublicKeyThumbprint:(NSString * _Nullable)alias
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
