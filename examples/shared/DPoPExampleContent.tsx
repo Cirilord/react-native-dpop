@@ -4,20 +4,20 @@ import { DPoP } from 'react-native-dpop';
 
 export default function DPoPExampleContent() {
   const onPress = useCallback(async () => {
-    const dpop = await DPoP.generateProof({
+    const dPoP = await DPoP.generateProof({
       htm: 'GET',
       htu: 'https://api.example.com/resource',
       kid: '123',
     });
 
-    const thumbprint = await dpop.calculateThumbprint();
+    const thumbprint = await dPoP.calculateThumbprint();
 
-    console.log(dpop, dpop.proof, thumbprint);
-    console.log(await dpop.getPublicKey('DER'));
-    console.log(await dpop.getPublicKey('JWK'));
-    console.log(await dpop.getPublicKey('RAW'));
-    console.log(await dpop.signWithDpopPrivateKey('RAW'));
-    console.log(await dpop.isBoundToAlias());
+    console.log(dPoP, dPoP.proof, thumbprint);
+    console.log(await dPoP.getPublicKey('DER'));
+    console.log(await dPoP.getPublicKey('JWK'));
+    console.log(await dPoP.getPublicKey('RAW'));
+    console.log(await dPoP.signWithDPoPPrivateKey('RAW'));
+    console.log(await dPoP.isBoundToAlias());
     console.log(await DPoP.getKeyInfo());
   }, []);
 

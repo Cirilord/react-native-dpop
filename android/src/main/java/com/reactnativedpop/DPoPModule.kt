@@ -238,7 +238,7 @@ class DPoPModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun signWithDpopPrivateKey(payload: String, alias: String?, promise: Promise) {
+  override fun signWithDPoPPrivateKey(payload: String, alias: String?, promise: Promise) {
     try {
       val effectiveAlias = resolveAlias(alias)
       if (!keyStore.hasKeyPair(effectiveAlias)) {

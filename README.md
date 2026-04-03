@@ -35,16 +35,16 @@ cd ios && pod install
 ```ts
 import { DPoP } from 'react-native-dpop';
 
-const dpop = await DPoP.generateProof({
+const dPoP = await DPoP.generateProof({
   htu: 'https://api.example.com/token',
   htm: 'POST',
   accessToken: 'ACCESS_TOKEN',
   nonce: 'SERVER_NONCE',
 });
 
-const proof = dpop.proof;
-const thumbprint = await dpop.calculateThumbprint();
-const publicJwk = await dpop.getPublicKey('JWK');
+const proof = dPoP.proof;
+const thumbprint = await dPoP.calculateThumbprint();
+const publicJwk = await dPoP.getPublicKey('JWK');
 const keyInfo = await DPoP.getKeyInfo();
 ```
 
@@ -66,7 +66,7 @@ const keyInfo = await DPoP.getKeyInfo();
 - `alias?: string`
 - `calculateThumbprint(): Promise<string>`
 - `getPublicKey(format): Promise<PublicJwk | string>`
-- `signWithDpopPrivateKey(payload): Promise<string>`
+- `signWithDPoPPrivateKey(payload): Promise<string>`
 - `isBoundToAlias(alias?): Promise<boolean>`
 
 ### Main types

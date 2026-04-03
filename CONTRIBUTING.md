@@ -25,7 +25,7 @@ The [example app](/examples/v0.83/) demonstrates usage of the library. You need 
 
 It is configured to use the local version of the library, so any changes you make to the library's source code will be reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a rebuild, but native code changes will require a rebuild of the example app.
 
-If you want to use Android Studio or Xcode to edit the native code, you can open the `examples/v0.83/android` or `examples/v0.83/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `examples/v0.83/ios/DpopExample.xcworkspace` in Xcode and find the source files at `Pods > Development Pods > react-native-dpop`.
+If you want to use Android Studio or Xcode to edit the native code, you can open the `examples/v0.83/android` or `examples/v0.83/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `examples/v0.83/ios/DPoPExample.xcworkspace` in Xcode and find the source files at `Pods > Development Pods > react-native-dpop`.
 
 To edit the Java or Kotlin files, open `examples/v0.83/android` in Android studio and find the source files at `react-native-dpop` under `Android`.
 
@@ -52,7 +52,7 @@ yarn example ios
 To confirm that the app is running with the new architecture, you can check the Metro logs for a message like this:
 
 ```sh
-Running "DpopExample" with {"fabric":true,"initialProps":{"concurrentRoot":true},"rootTag":1}
+Running "DPoPExample" with {"fabric":true,"initialProps":{"concurrentRoot":true},"rootTag":1}
 ```
 
 Note the `"fabric":true` and `"concurrentRoot":true` properties.

@@ -13,7 +13,7 @@ export interface Spec extends TurboModule {
   hasKeyPair(alias: string | null): Promise<boolean>;
   isBoundToAlias(proof: string, alias: string | null): Promise<boolean>;
   rotateKeyPair(alias: string | null): Promise<void>;
-  signWithDpopPrivateKey(payload: string, alias: string | null): Promise<string>;
+  signWithDPoPPrivateKey(payload: string, alias: string | null): Promise<string>;
   generateProof(
     htu: string,
     htm: string,
@@ -27,8 +27,8 @@ export interface Spec extends TurboModule {
   ): Promise<UnsafeObject>;
 }
 
-const nativeDpopModule =
+const nativeDPoPModule =
   // eslint-disable-next-line dot-notation -- required by noPropertyAccessFromIndexSignature from @tsconfig/strictest
   TurboModuleRegistry.get<Spec>('ReactNativeDPoP') ?? (NativeModules['ReactNativeDPoP'] as Spec | undefined);
 
-export default nativeDpopModule as Spec;
+export default nativeDPoPModule as Spec;

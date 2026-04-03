@@ -58,7 +58,7 @@ RCT_EXTERN_METHOD(rotateKeyPair:(NSString * _Nullable)alias
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(signWithDpopPrivateKey:(NSString *)payload
+RCT_EXTERN_METHOD(signWithDPoPPrivateKey:(NSString *)payload
                   alias:(NSString * _Nullable)alias
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)

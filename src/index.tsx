@@ -93,8 +93,8 @@ export class DPoP {
     return NativeReactNativeDPoP.getPublicKeyJwk(this.alias ?? null) as Promise<PublicJwk>;
   }
 
-  public async signWithDpopPrivateKey(payload: string): Promise<string> {
-    return NativeReactNativeDPoP.signWithDpopPrivateKey(payload, this.alias ?? null);
+  public async signWithDPoPPrivateKey(payload: string): Promise<string> {
+    return NativeReactNativeDPoP.signWithDPoPPrivateKey(payload, this.alias ?? null);
   }
 
   public async isBoundToAlias(alias?: string): Promise<boolean> {

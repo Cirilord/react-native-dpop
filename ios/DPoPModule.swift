@@ -165,7 +165,7 @@ final class DPoPModule {
     try keyStore.generateKeyPair(alias: resolveAlias(alias))
   }
 
-  func signWithDpopPrivateKey(payload: String, alias: String?) throws -> String {
+  func signWithDPoPPrivateKey(payload: String, alias: String?) throws -> String {
     let effectiveAlias = resolveAlias(alias)
     if !keyStore.hasKeyPair(alias: effectiveAlias) {
       try keyStore.generateKeyPair(alias: effectiveAlias)
@@ -362,9 +362,9 @@ final class DPoPModule {
     }
   }
 
-  func signWithDpopPrivateKey(_ payload: String, alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  func signWithDPoPPrivateKey(_ payload: String, alias: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     do {
-      resolve(try DPoPModule.shared.signWithDpopPrivateKey(payload: payload, alias: alias))
+      resolve(try DPoPModule.shared.signWithDPoPPrivateKey(payload: payload, alias: alias))
     } catch {
       reject("ERR_DPOP_SIGN_WITH_PRIVATE_KEY", error.localizedDescription, error)
     }
