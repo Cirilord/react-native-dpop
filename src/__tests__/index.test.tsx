@@ -121,4 +121,31 @@ describe('DPoP', () => {
     expect(mockNativeReactNativeDPoP.getKeyInfo).toHaveBeenCalledWith('a1');
     expect(mockNativeReactNativeDPoP.hasKeyPair).toHaveBeenCalledWith('a1');
   });
+
+  it('builds request headers from a generated proof', async () => {
+    mockNativeReactNativeDPoP.generateProof.mockResolvedValue({
+      proof: 'proof.jwt',
+      proofContext,
+    });
+
+    await expect(
+      DPoP.buildDPoPHeaders({
+        htu: proofContext.htu,
+        htm: 'POST',
+        accessToken: 'token-123',
+      })
+    ).resolves.toEqual({
+      DPoP: 'proof.jwt',
+      Authorization: 'DPoP token-123',
+    });
+
+    await expect(
+      DPoP.buildDPoPHeaders({
+        htu: proofContext.htu,
+        htm: 'POST',
+      })
+    ).resolves.toEqual({
+      DPoP: 'proof.jwt',
+    });
+  });
 });

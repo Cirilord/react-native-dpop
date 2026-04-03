@@ -51,6 +51,11 @@ export type GenerateProofInput = {
   alias?: string;
 };
 
+export type DPoPHeaders = {
+  DPoP: string;
+  Authorization?: string;
+};
+
 export type DPoPProofContext = {
   htu: string;
   htm: string;
@@ -116,6 +121,15 @@ export class DPoP {
     )) as GenerateProofResult;
 
     return new DPoP(result.proof, result.proofContext, input.alias);
+  }
+
+  public static async buildDPoPHeaders(input: GenerateProofInput): Promise<DPoPHeaders> {
+    const dPoP = await DPoP.generateProof(input);
+
+    return {
+      DPoP: dPoP.proof,
+      ...(input.accessToken ? { Authorization: `DPoP ${input.accessToken}` } : {}),
+    };
   }
 
   public static async assertHardwareBacked(alias?: string): Promise<void> {

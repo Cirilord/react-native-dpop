@@ -53,6 +53,7 @@ const keyInfo = await DPoP.getKeyInfo();
 ### Static methods
 
 - `DPoP.generateProof(input): Promise<DPoP>`
+- `DPoP.buildDPoPHeaders(input): Promise<DPoPHeaders>`
 - `DPoP.assertHardwareBacked(alias?): Promise<void>`
 - `DPoP.deleteKeyPair(alias?): Promise<void>`
 - `DPoP.getKeyInfo(alias?): Promise<DPoPKeyInfo>`
@@ -72,6 +73,7 @@ const keyInfo = await DPoP.getKeyInfo();
 ### Main types
 
 - `GenerateProofInput`
+- `DPoPHeaders`
 - `DPoPProofContext`
 - `DPoPKeyInfo`
 - `PublicJwk`
@@ -129,6 +131,25 @@ type DPoPKeyInfo = {
 - On iOS, the library tries Secure Enclave first when available
 - Fallback reasons are sanitized enums rather than raw native errors
 - On iOS Simulator, `secureEnclaveFallbackReason` is expected to be `UNAVAILABLE`
+
+## `buildDPoPHeaders()`
+
+`buildDPoPHeaders()` generates a proof and returns request headers ready to use.
+
+```ts
+const headers = await DPoP.buildDPoPHeaders({
+  htu: 'https://api.example.com/token',
+  htm: 'POST',
+  accessToken: 'ACCESS_TOKEN',
+});
+
+// {
+//   DPoP: '<proof>',
+//   Authorization: 'DPoP ACCESS_TOKEN',
+// }
+```
+
+If `accessToken` is omitted, only the `DPoP` header is returned.
 
 ## Notes
 
