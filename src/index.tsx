@@ -3,8 +3,8 @@ import NativeReactNativeDPoP from './NativeReactNativeDPoP';
 type AdditionalClaims = Record<string, unknown>;
 
 export type PublicJwk = {
-  kty: 'EC';
   crv: 'P-256';
+  kty: 'EC';
   x: string;
   y: string;
 };
@@ -16,55 +16,55 @@ export type AndroidSecurityLevelName = 'SOFTWARE' | 'TRUSTED_ENVIRONMENT' | 'STR
 export type IOSSecurityLevelName = 'SOFTWARE' | 'SECURE_ENCLAVE';
 
 export type DPoPKeyInfo = {
-  alias: string;
-  hasKeyPair: boolean;
   algorithm?: string;
+  alias: string;
   curve?: string;
-  insideSecureHardware?: boolean;
   hardware?: {
     android?: {
-      strongBoxAvailable: boolean;
-      strongBoxBacked: boolean;
       securityLevel?: number;
       securityLevelName?: AndroidSecurityLevelName;
+      strongBoxAvailable: boolean;
+      strongBoxBacked: boolean;
       strongBoxFallbackReason?: SecureHardwareFallbackReason | null;
     };
     ios?: {
       secureEnclaveAvailable: boolean;
       secureEnclaveBacked: boolean;
+      secureEnclaveFallbackReason?: SecureHardwareFallbackReason | null;
       securityLevel?: number | null;
       securityLevelName?: IOSSecurityLevelName;
-      secureEnclaveFallbackReason?: SecureHardwareFallbackReason | null;
     };
   };
+  hasKeyPair: boolean;
+  insideSecureHardware?: boolean;
 };
 
 export type GenerateProofInput = {
-  htu: string;
-  htm: string;
-  nonce?: string;
   accessToken?: string;
   additional?: AdditionalClaims;
-  kid?: string;
-  jti?: string;
-  iat?: number;
   alias?: string;
+  htm: string;
+  htu: string;
+  iat?: number;
+  jti?: string;
+  kid?: string;
+  nonce?: string;
 };
 
 export type DPoPHeaders = {
-  DPoP: string;
   Authorization?: string;
+  DPoP: string;
 };
 
 export type DPoPProofContext = {
-  htu: string;
-  htm: string;
-  nonce: string | null;
-  ath: string | null;
   additional: AdditionalClaims | null;
-  kid: string | null;
-  jti: string;
+  ath: string | null;
+  htm: string;
+  htu: string;
   iat: number;
+  jti: string;
+  kid: string | null;
+  nonce: string | null;
 };
 
 type GenerateProofResult = {
@@ -73,8 +73,8 @@ type GenerateProofResult = {
 };
 
 export class DPoP {
-  public readonly proof: string;
   public readonly alias: string | undefined;
+  public readonly proof: string;
   public readonly proofContext: DPoPProofContext;
 
   private constructor(proof: string, proofContext: DPoPProofContext, alias?: string) {
@@ -83,27 +83,21 @@ export class DPoP {
     this.alias = alias;
   }
 
-  public async getPublicKeyThumbprint(): Promise<string> {
-    return NativeReactNativeDPoP.getPublicKeyThumbprint(this.alias ?? null);
+  public static async assertHardwareBacked(alias?: string): Promise<void> {
+    await NativeReactNativeDPoP.assertHardwareBacked(alias ?? null);
   }
 
-  public async getPublicKey(format: PublicKeyFormat): Promise<PublicJwk | string> {
-    if (format === 'DER') {
-      return NativeReactNativeDPoP.getPublicKeyDer(this.alias ?? null);
-    }
-    if (format === 'RAW') {
-      return NativeReactNativeDPoP.getPublicKeyRaw(this.alias ?? null);
-    }
+  public static async buildDPoPHeaders(input: GenerateProofInput): Promise<DPoPHeaders> {
+    const dPoP = await DPoP.generateProof(input);
 
-    return NativeReactNativeDPoP.getPublicKeyJwk(this.alias ?? null) as Promise<PublicJwk>;
+    return {
+      DPoP: dPoP.proof,
+      ...(input.accessToken ? { Authorization: `DPoP ${input.accessToken}` } : {}),
+    };
   }
 
-  public async signWithDPoPPrivateKey(payload: string): Promise<string> {
-    return NativeReactNativeDPoP.signWithDPoPPrivateKey(payload, this.alias ?? null);
-  }
-
-  public async isBoundToAlias(alias?: string): Promise<boolean> {
-    return NativeReactNativeDPoP.isBoundToAlias(this.proof, alias ?? this.alias ?? null);
+  public static async deleteKeyPair(alias?: string): Promise<void> {
+    await NativeReactNativeDPoP.deleteKeyPair(alias ?? null);
   }
 
   public static async generateProof(input: GenerateProofInput): Promise<DPoP> {
@@ -123,23 +117,6 @@ export class DPoP {
     return new DPoP(result.proof, result.proofContext, input.alias);
   }
 
-  public static async buildDPoPHeaders(input: GenerateProofInput): Promise<DPoPHeaders> {
-    const dPoP = await DPoP.generateProof(input);
-
-    return {
-      DPoP: dPoP.proof,
-      ...(input.accessToken ? { Authorization: `DPoP ${input.accessToken}` } : {}),
-    };
-  }
-
-  public static async assertHardwareBacked(alias?: string): Promise<void> {
-    await NativeReactNativeDPoP.assertHardwareBacked(alias ?? null);
-  }
-
-  public static async deleteKeyPair(alias?: string): Promise<void> {
-    await NativeReactNativeDPoP.deleteKeyPair(alias ?? null);
-  }
-
   public static async getKeyInfo(alias?: string): Promise<DPoPKeyInfo> {
     return NativeReactNativeDPoP.getKeyInfo(alias ?? null) as Promise<DPoPKeyInfo>;
   }
@@ -150,5 +127,28 @@ export class DPoP {
 
   public static async rotateKeyPair(alias?: string): Promise<void> {
     await NativeReactNativeDPoP.rotateKeyPair(alias ?? null);
+  }
+
+  public async getPublicKey(format: PublicKeyFormat): Promise<PublicJwk | string> {
+    if (format === 'DER') {
+      return NativeReactNativeDPoP.getPublicKeyDer(this.alias ?? null);
+    }
+    if (format === 'RAW') {
+      return NativeReactNativeDPoP.getPublicKeyRaw(this.alias ?? null);
+    }
+
+    return NativeReactNativeDPoP.getPublicKeyJwk(this.alias ?? null) as Promise<PublicJwk>;
+  }
+
+  public async getPublicKeyThumbprint(): Promise<string> {
+    return NativeReactNativeDPoP.getPublicKeyThumbprint(this.alias ?? null);
+  }
+
+  public async isBoundToAlias(alias?: string): Promise<boolean> {
+    return NativeReactNativeDPoP.isBoundToAlias(this.proof, alias ?? this.alias ?? null);
+  }
+
+  public async signWithDPoPPrivateKey(payload: string): Promise<string> {
+    return NativeReactNativeDPoP.signWithDPoPPrivateKey(payload, this.alias ?? null);
   }
 }

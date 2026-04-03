@@ -66,6 +66,21 @@ export default defineConfig([
           prefer: 'type-imports',
         },
       ],
+      '@typescript-eslint/explicit-function-return-type': 'error',
+      '@typescript-eslint/explicit-member-accessibility': [
+        'error',
+        {
+          accessibility: 'explicit',
+        },
+      ],
+      '@typescript-eslint/member-ordering': [
+        'error',
+        {
+          default: {
+            order: 'alphabetically',
+          },
+        },
+      ],
     },
   },
   {

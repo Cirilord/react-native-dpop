@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import { DPoP } from 'react-native-dpop';
 
-export default function DPoPExampleContent() {
+export default function DPoPExampleContent(): JSX.Element {
   const onPress = useCallback(async () => {
     const dPoP = await DPoP.generateProof({
       htm: 'GET',

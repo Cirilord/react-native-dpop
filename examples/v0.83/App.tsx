@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DPoPExampleContent from '../shared/DPoPExampleContent';
 
-export default function App() {
+export default function App(): JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <DPoPExampleContent />
