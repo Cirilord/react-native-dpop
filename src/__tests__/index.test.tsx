@@ -175,4 +175,22 @@ describe('DPoP', () => {
       true
     );
   });
+
+  it('rejects reserved DPoP claims inside additional before calling native code', async () => {
+    mockNativeReactNativeDPoP.generateProof.mockRejectedValue(
+      new Error('additional must not override reserved DPoP claim: htu')
+    );
+
+    await expect(
+      DPoP.generateProof({
+        htu: proofContext.htu,
+        htm: 'POST',
+        additional: {
+          htu: 'https://evil.example.com/override',
+        },
+      })
+    ).rejects.toThrow('additional must not override reserved DPoP claim: htu');
+
+    expect(mockNativeReactNativeDPoP.generateProof).toHaveBeenCalled();
+  });
 });

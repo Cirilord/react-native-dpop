@@ -7,6 +7,7 @@ final class DPoPModule {
 
   private let keyStore = DPoPKeyStore()
   private let defaultAlias = "react-native-dpop"
+  private let reservedDPoPClaims = Set(["ath", "htm", "htu", "iat", "jti", "nonce"])
   private let unknownSecureEnclaveFallbackReason = "UNKNOWN"
   private let unavailableSecureEnclaveFallbackReason = "UNAVAILABLE"
 
@@ -256,6 +257,13 @@ final class DPoPModule {
 
     if let additional {
       for (key, value) in additional {
+        if reservedDPoPClaims.contains(key) {
+          throw NSError(
+            domain: "ReactNativeDPoP",
+            code: 0,
+            userInfo: [NSLocalizedDescriptionKey: "additional must not override reserved DPoP claim: \(key)"]
+          )
+        }
         payload[key] = value
       }
     }

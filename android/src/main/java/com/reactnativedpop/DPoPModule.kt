@@ -16,6 +16,7 @@ class DPoPModule(reactContext: ReactApplicationContext) :
     private const val DEFAULT_ALIAS = "react-native-dpop"
     const val NAME = NativeReactNativeDPoPSpec.NAME
     private const val UNKNOWN_STRONGBOX_FALLBACK_REASON = "UNKNOWN"
+    private val RESERVED_DPOP_CLAIMS = setOf("ath", "htm", "htu", "iat", "jti", "nonce")
   }
 
   private fun resolveAlias(alias: String?): String {
@@ -328,6 +329,9 @@ class DPoPModule(reactContext: ReactApplicationContext) :
         val keys = additionalJson.keys()
         while (keys.hasNext()) {
           val key = keys.next()
+          if (RESERVED_DPOP_CLAIMS.contains(key)) {
+            throw IllegalArgumentException("additional must not override reserved DPoP claim: $key")
+          }
           payload.put(key, additionalJson.get(key))
         }
       }
