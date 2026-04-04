@@ -71,6 +71,23 @@ const keyInfo = await DPoP.getKeyInfo();
 - `signWithDPoPPrivateKey(payload): Promise<string>`
 - `isBoundToAlias(alias?): Promise<boolean>`
 
+### `signWithDPoPPrivateKey()`
+
+`signWithDPoPPrivateKey()` reuses the same private key pair managed by the DPoP alias. It does not create or use a separate signing key.
+
+This means:
+
+- the signature is produced with the same key material used for DPoP proofs
+- the active alias determines which private key is used
+- if the alias points to a hardware-backed key, the same hardware-backed key is reused
+- if the alias points to a fallback software-backed key, the same fallback key is reused
+
+Recommended usage:
+
+- use this only when you intentionally want to sign arbitrary payloads with the same DPoP key
+- avoid treating it as a general-purpose application signing API
+- if you need a different trust boundary or lifecycle, use a different alias or a different key management flow
+
 ### Main types
 
 - `GenerateProofInput`
