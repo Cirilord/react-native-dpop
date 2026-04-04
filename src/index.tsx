@@ -49,6 +49,7 @@ export type GenerateProofInput = {
   jti?: string;
   kid?: string;
   nonce?: string;
+  requireHardwareBacked?: boolean;
 };
 
 export type DPoPHeaders = {
@@ -111,7 +112,8 @@ export class DPoP {
       input.jti ?? null,
       // RN 0.75 Android bridge can crash when a nullable Double arrives as null.
       input.iat ?? Math.floor(Date.now() / 1000),
-      input.alias ?? null
+      input.alias ?? null,
+      input.requireHardwareBacked ?? false
     )) as GenerateProofResult;
 
     return new DPoP(result.proof, result.proofContext, input.alias);

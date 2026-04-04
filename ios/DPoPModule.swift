@@ -19,6 +19,24 @@ final class DPoPModule {
     return alias
   }
 
+  func ensureKeyPair(alias: String, requireHardwareBacked: Bool) throws {
+    var generatedInThisCall = false
+
+    if !keyStore.hasKeyPair(alias: alias) {
+      try keyStore.generateKeyPair(alias: alias)
+      generatedInThisCall = true
+    }
+
+    let isHardwareBacked = keyStore.isHardwareBacked(alias: alias)
+
+    if requireHardwareBacked && !isHardwareBacked {
+      if generatedInThisCall {
+        try? keyStore.deleteKeyPair(alias: alias)
+      }
+      throw DPoPError.notHardwareBacked(alias: alias)
+    }
+  }
+
   func assertHardwareBacked(alias: String?) throws {
     let effectiveAlias = resolveAlias(alias)
     guard keyStore.hasKeyPair(alias: effectiveAlias) else {
@@ -193,12 +211,11 @@ final class DPoPModule {
     kid: String?,
     jti: String?,
     iat: NSNumber?,
-    alias: String?
+    alias: String?,
+    requireHardwareBacked: Bool
   ) throws -> [String: Any] {
     let effectiveAlias = resolveAlias(alias)
-    if !keyStore.hasKeyPair(alias: effectiveAlias) {
-      try keyStore.generateKeyPair(alias: effectiveAlias)
-    }
+    try ensureKeyPair(alias: effectiveAlias, requireHardwareBacked: requireHardwareBacked)
     let keyPair = try keyStore.getKeyPair(alias: effectiveAlias)
     let coordinates = try DPoPUtils.getPublicCoordinates(fromRawPublicKey: try DPoPUtils.toRawPublicKey(keyPair.publicKey))
 
@@ -380,6 +397,7 @@ final class DPoPModule {
     jti: String?,
     iat: Any?,
     alias: String?,
+    requireHardwareBacked: Bool,
     resolve: @escaping RCTPromiseResolveBlock,
     reject: @escaping RCTPromiseRejectBlock
   ) {
@@ -401,7 +419,8 @@ final class DPoPModule {
           kid: kid,
           jti: jti,
           iat: normalizedIat,
-          alias: alias
+          alias: alias,
+          requireHardwareBacked: requireHardwareBacked
         )
       )
     } catch {

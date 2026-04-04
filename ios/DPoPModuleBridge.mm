@@ -72,6 +72,7 @@ RCT_EXTERN_METHOD(generateProof:(NSString *)htu
                   jti:(NSString * _Nullable)jti
                   iat:(id _Nullable)iat
                   alias:(NSString * _Nullable)alias
+                  requireHardwareBacked:(BOOL)requireHardwareBacked
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 

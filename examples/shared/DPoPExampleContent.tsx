@@ -8,6 +8,7 @@ export default function DPoPExampleContent(): JSX.Element {
       htm: 'GET',
       htu: 'https://api.example.com/resource',
       kid: '123',
+      requireHardwareBacked: false,
     });
 
     const publicKeyThumbprint = await dPoP.getPublicKeyThumbprint();

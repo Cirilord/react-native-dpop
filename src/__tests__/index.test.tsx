@@ -57,7 +57,8 @@ describe('DPoP', () => {
       null,
       null,
       expect.any(Number),
-      'alias-1'
+      'alias-1',
+      false
     );
     expect(dPoP.proof).toBe('proof.jwt');
     expect(dPoP.proofContext).toEqual(proofContext);
@@ -147,5 +148,31 @@ describe('DPoP', () => {
     ).resolves.toEqual({
       DPoP: 'proof.jwt',
     });
+  });
+
+  it('passes requireHardwareBacked through to native proof generation', async () => {
+    mockNativeReactNativeDPoP.generateProof.mockResolvedValue({
+      proof: 'proof.jwt',
+      proofContext,
+    });
+
+    await DPoP.generateProof({
+      htu: proofContext.htu,
+      htm: 'POST',
+      requireHardwareBacked: true,
+    });
+
+    expect(mockNativeReactNativeDPoP.generateProof).toHaveBeenLastCalledWith(
+      proofContext.htu,
+      'POST',
+      null,
+      null,
+      null,
+      null,
+      null,
+      expect.any(Number),
+      null,
+      true
+    );
   });
 });

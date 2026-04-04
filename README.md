@@ -40,6 +40,7 @@ const dPoP = await DPoP.generateProof({
   htm: 'POST',
   accessToken: 'ACCESS_TOKEN',
   nonce: 'SERVER_NONCE',
+  requireHardwareBacked: true,
 });
 
 const proof = dPoP.proof;
@@ -157,6 +158,7 @@ If `accessToken` is omitted, only the `DPoP` header is returned.
 - `htm` is normalized to uppercase
 - `ath` is derived from `accessToken` when provided
 - `jti` and `iat` are auto-generated when omitted
+- `requireHardwareBacked` forces proof generation to fail instead of silently persisting a software-backed fallback key
 - For React Native 0.75 on Android, the library ensures `iat` is sent as a number to avoid an older bridge nullability issue with `Double`
 
 ## Example apps

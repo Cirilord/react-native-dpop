@@ -22,6 +22,22 @@ class DPoPModule(reactContext: ReactApplicationContext) :
     return alias ?: DEFAULT_ALIAS
   }
 
+  private fun ensureKeyPair(alias: String, requireHardwareBacked: Boolean): Unit {
+    var generatedInThisCall = false
+
+    if (!keyStore.hasKeyPair(alias)) {
+      keyStore.generateKeyPair(alias)
+      generatedInThisCall = true
+    }
+
+    if (requireHardwareBacked && !keyStore.isHardwareBacked(alias)) {
+      if (generatedInThisCall) {
+        keyStore.deleteKeyPair(alias)
+      }
+      throw IllegalStateException("Hardware-backed key required for alias: $alias")
+    }
+  }
+
   private fun resolveStrongBoxFallbackReason(
     strongBoxAvailable: Boolean,
     strongBoxBacked: Boolean,
@@ -267,13 +283,12 @@ class DPoPModule(reactContext: ReactApplicationContext) :
     jti: String?,
     iat: Double?,
     alias: String?,
+    requireHardwareBacked: Boolean,
     promise: Promise
   ) {
     try {
       val effectiveAlias = resolveAlias(alias)
-      if (!keyStore.hasKeyPair(effectiveAlias)) {
-        keyStore.generateKeyPair(effectiveAlias)
-      }
+      ensureKeyPair(effectiveAlias, requireHardwareBacked)
 
       val keyPair = keyStore.getKeyPair(effectiveAlias)
       val coordinates = DPoPUtils.getPublicCoordinates(keyPair.publicKey)

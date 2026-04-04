@@ -93,7 +93,7 @@ final class DPoPKeyStore {
   }
 
   func isHardwareBacked(alias: String) -> Bool {
-    secureEnclave.isHardwareBacked(alias: alias)
+    secureEnclaveAvailable && secureEnclave.isHardwareBacked(alias: alias)
   }
 
   func isSecureEnclaveAvailable() -> Bool {

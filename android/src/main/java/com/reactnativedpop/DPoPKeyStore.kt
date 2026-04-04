@@ -113,6 +113,8 @@ internal class DPoPKeyStore(private val context: Context) {
     val keyPair = getKeyPair(alias)
     val keyFactory = KeyFactory.getInstance(keyPair.privateKey.algorithm, KEYSTORE_PROVIDER)
     val keyInfo = keyFactory.getKeySpec(keyPair.privateKey, KeyInfo::class.java)
+    val strongBoxAvailable = isStrongBoxEnabled()
+    val strongBoxBacked = strongBoxAvailable && readStrongBoxBacked(keyInfo)
 
     return KeyStoreKeyInfo(
       alias = alias,
@@ -120,9 +122,9 @@ internal class DPoPKeyStore(private val context: Context) {
       curve = "P-256",
       insideSecureHardware = keyInfo.isInsideSecureHardware,
       securityLevel = readSecurityLevel(keyInfo),
-      securityLevelName = readSecurityLevelName(keyInfo),
-      strongBoxAvailable = isStrongBoxEnabled(),
-      strongBoxBacked = readStrongBoxBacked(keyInfo)
+      securityLevelName = readSecurityLevelName(keyInfo, strongBoxBacked),
+      strongBoxAvailable = strongBoxAvailable,
+      strongBoxBacked = strongBoxBacked
     )
   }
 
@@ -174,8 +176,7 @@ internal class DPoPKeyStore(private val context: Context) {
     }
   }
 
-  private fun readSecurityLevelName(keyInfo: KeyInfo): String {
-    val strongBoxBacked = readStrongBoxBacked(keyInfo)
+  private fun readSecurityLevelName(keyInfo: KeyInfo, strongBoxBacked: Boolean): String {
     val securityLevel = readSecurityLevel(keyInfo)
 
     return when (securityLevel) {

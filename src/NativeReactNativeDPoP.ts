@@ -14,7 +14,8 @@ export interface Spec extends TurboModule {
     kid: string | null,
     jti: string | null,
     iat: number | null,
-    alias: string | null
+    alias: string | null,
+    requireHardwareBacked: boolean
   ): Promise<UnsafeObject>;
   getKeyInfo(alias: string | null): Promise<UnsafeObject>;
   getPublicKeyDer(alias: string | null): Promise<string>;
