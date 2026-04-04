@@ -1497,7 +1497,7 @@ PODS:
     - React-logger (= 0.75.4)
     - React-perflogger (= 0.75.4)
     - React-utils (= 0.75.4)
-  - ReactNativeDPoP (0.2.0):
+  - ReactNativeDPoP (0.4.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1783,7 +1783,7 @@ SPEC CHECKSUMS:
   React-utils: 02526ea15628a768b8db9517b6017a1785c734d2
   ReactCodegen: 8b5341ecb61898b8bd40a73ebc443c6bf2d14423
   ReactCommon: 36d48f542b4010786d6b2bcee615fe5f906b7105
-  ReactNativeDPoP: b48116e37848e7a9267327a0cee80e427e1d350d
+  ReactNativeDPoP: 3e65698c05c3ba146e5f24e3f3cabbdf74f6459d
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   Yoga: 055f92ad73f8c8600a93f0e25ac0b2344c3b07e6
 
